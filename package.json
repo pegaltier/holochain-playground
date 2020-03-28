@@ -1,0 +1,32 @@
+{
+  "scripts": {
+    "build": "rimraf dist && rollup -c rollup.config.ts",
+    "start": "concurrently \"rollup -c rollup.config.ts -w\" \"es-dev-server --app-index index.html --root-dir dist --open --watch\""
+  },
+  "devDependencies": {
+    "@open-wc/building-rollup": "^0.21.0",
+    "@rollup/plugin-commonjs": "^11.0.2",
+    "@rollup/plugin-node-resolve": "^7.1.1",
+    "concurrently": "^5.1.0",
+    "es-dev-server": "^1.5.0",
+    "rimraf": "^2.6.3",
+    "rollup": "^1.15.4",
+    "rollup-plugin-node-builtins": "^2.1.2",
+    "rollup-plugin-node-globals": "^1.4.0",
+    "rollup-plugin-sourcemaps": "^0.5.0",
+    "rollup-plugin-typescript2": "^0.27.0",
+    "typescript": "^3.8.3"
+  },
+  "name": "holochain-playground",
+  "version": "0.0.0",
+  "description": "Webcomponent holochain-playground following open-wc recommendations",
+  "author": "holochain-playground",
+  "license": "MIT",
+  "dependencies": {
+    "cytoscape": "^3.14.1",
+    "cytoscape-avsdf": "^1.0.0",
+    "lit-element": "^2.0.1",
+    "lit-html": "^1.0.0",
+    "multihashes": "^0.4.18"
+  }
+}
