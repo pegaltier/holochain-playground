@@ -5,6 +5,7 @@ import avsdf from "cytoscape-avsdf";
 import { Playground } from "../types/playground";
 import { dnaNodes } from "../processors/graph";
 import { buildPlayground } from "../processors/build-playground";
+import { sharedStyles } from "./sharedStyles";
 
 export class HolochainPlayground extends LitElement {
   @property()
@@ -18,7 +19,7 @@ export class HolochainPlayground extends LitElement {
 
   async firstUpdated() {
     this.selectedDNA = "dna1";
-    this.playground = await buildPlayground(this.selectedDNA, 15);
+    this.playground = await buildPlayground(this.selectedDNA, 10);
 
     cytoscape.use(avsdf);
     cytoscape({
@@ -31,16 +32,25 @@ export class HolochainPlayground extends LitElement {
           selector: "node",
           style: {
             "background-color": "#666",
-            label: "data(id)"
+            label: "data(label)",
+            "font-size": "8px",
+            width: "15px",
+            height: "15px"
           }
         }
       ]
     });
   }
 
+  static get styles() {
+    return sharedStyles;
+  }
+
   render() {
     return html`
-      <div id="graph" style="height: 100%;"></div>
+      <div class="row fill" style="height: 100%;">
+        <div id="graph" style="flex: 800px;"></div>
+      </div>
     `;
   }
 }

@@ -17,7 +17,7 @@ export function str2ab(str) {
 export function hash(content: any): string {
   const contentString =
     typeof content === "string" ? content : JSON.stringify(content);
-
+  
   const encoded = multihashes.encode(
     Buffer.from(contentString, "utf-8"),
     "sha2-256"
@@ -41,33 +41,19 @@ function xor(a, b) {
   return new Buffer(res);
 }
 
-export function distance(hash1: string, hash2: string): bigint {
+export function distance(hash1: string, hash2: string): number {
   const array1 = multihashes.fromB58String(hash1);
   const array2 = multihashes.fromB58String(hash2);
 
   const buffer = xor(array1, array2);
-  console.log(buffer);
-
-  return buffer.readBigInt64BE(0);
+  return arrayToInt(buffer);
 }
 
-console.log(
-  "hola0",
-  distance("5ubUtRzQ6asWU8JWePcST7F2Rc8n2T", "5ubUtRzQ6asWU8JWePcST7F2Rc8n2T")
-);
-console.log(
-  "hola0",
-  distance("5ubUtRzQ6asWU8JWePcST7F2Rc8n1T", "5ubUtRzQ6asWU8JWePcST7F2Rc8n2T")
-);
-console.log(
-  "hola1",
-  distance("5ubUtRzQ6asWU8JWePcST7F2Rc8n2T", "1ubUtRzQ6asWU8JWePcST7F2Rc8n2T")
-);
-console.log(
-  "hola1",
-  distance("5ubUtRzQ6asWU8JWePcST7F2Rc8n2T", "5dbUtRzQ6asWU8JWePcST7F2Rc8n2T")
-);
-console.log(
-  "hola1",
-  distance("5ubUtRzQ6asWU8JWePcST7F2Rc8n2T", "5ucUtRzQ6asWU8JWePcST7F2Rc8n2T")
-);
+export function arrayToInt(array: Uint8Array): number {
+  var length = array.length;
+
+  let buffer = Buffer.from(array);
+  var result = buffer.readUIntBE(0, length);
+
+  return result;
+}

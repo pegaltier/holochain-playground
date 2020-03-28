@@ -8,8 +8,8 @@ export async function buildPlayground(
   const conductors = [];
 
   for (let i = 0; i < numConductors; i++) {
-    const conductor = new Conductor(Math.random().toString());
-    await conductor.installDna(dna);
+    const conductor = Conductor.new();
+    conductor.installDna(dna);
     conductors.push(conductor);
   }
 
