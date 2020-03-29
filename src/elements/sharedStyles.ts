@@ -16,4 +16,7 @@ export const sharedStyles = css`
     align-items: center;
     justify-content: center;
   }
+  h3 {
+    margin-block-start: 0;
+  }
 `;

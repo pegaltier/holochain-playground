@@ -23,35 +23,44 @@ export class HolochainPlayground extends LitElement {
   @query("#graph")
   element: HTMLElement;
 
+  highlightNodesWithEntry(cy, entryId: string) {
+    this.getActiveCells().forEach(cell =>
+      cy.getElementById(cell.agentId).removeClass("highlighted")
+    );
+    const cells = this.getActiveCells().filter(c => !!c.CASMeta[entryId]);
+
+    for (const cell of cells) {
+      cy.getElementById(cell.agentId).addClass("highlighted");
+    }
+  }
+
   async firstUpdated() {
-    this.addEventListener("entry-committed", () => this.requestUpdate());
+    const nodes = dnaNodes(this.getActiveCells());
+    console.log(nodes);
 
     cytoscape.use(avsdf);
     const cy = cytoscape({
       container: this.shadowRoot.getElementById("graph"),
-      elements: dnaNodes(this.selectedDNA, this.playground),
+      elements: nodes,
       layout: { name: "avsdf" },
-      style: [
-        // the stylesheet for the graph
-        {
-          selector: "node",
-          style: {
-            "background-color": "#666",
-            label: "data(label)",
-            "font-size": "8px",
-            width: "15px",
-            height: "15px"
-          }
-        },
-        {
-          selector: "edge",
-          style: {
-            width: 4,
-            "target-arrow-shape": "triangle",
-            "curve-style": "bezier"
-          }
+      style: `
+        node {
+          background-color: #666;
+          label: data(label);
+          font-size: "8px;
+          width: 15px;
+          height: 15px;
+
         }
-      ]
+        .highlighted {
+          background-color: yellow;
+        }
+        edge {
+          width: 4;
+          target-arrow-shape: "triangle";
+          curve-style: "bezier";
+        }
+      `
     });
 
     cy.on("tap", "node", evt => {
@@ -59,6 +68,11 @@ export class HolochainPlayground extends LitElement {
         conductor.agentIds.find(agentId => agentId === evt.target.id())
       );
     });
+
+    this.addEventListener("entry-committed", () => this.requestUpdate());
+    this.addEventListener("entry-selected", (e: CustomEvent) =>
+      this.highlightNodesWithEntry(cy, e.detail.entryId)
+    );
   }
 
   static get styles() {
@@ -104,12 +118,12 @@ export class HolochainPlayground extends LitElement {
           <div class="column">
             <h3>DNA: ${this.selectedDNA}</h3>
             <div class="row">
-              <span>Nodes: ${this.getNodes()}, </span>
-              <span>
-                Redundancy factor: ${this.playground.redundancyFactor},
-              </span>
-              <span>Global DHT Ops: ${this.getGlobalDHTOps()}</span>
-              <span>Unique DHT Ops: ${this.getUniqueDHTOps()}</span>
+              <span
+                >Nodes: ${this.getNodes()}, Redundancy factor:
+                ${this.playground.redundancyFactor}, Global DHT Ops:
+                ${this.getGlobalDHTOps()}, Unique DHT Ops:
+                ${this.getUniqueDHTOps()}</span
+              >
             </div>
           </div>
         </div>

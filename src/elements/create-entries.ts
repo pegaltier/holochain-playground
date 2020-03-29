@@ -96,6 +96,12 @@ export class CreateEntries extends LitElement {
     return [
       sharedStyles,
       css`
+        hr {
+          width: 100%;
+          opacity: 0.3;
+          margin-top: 20px;
+          margin-bottom: 20px;
+        }
         mwc-textfield,
         mwc-textarea {
           margin-right: 16px;
@@ -372,8 +378,13 @@ export class CreateEntries extends LitElement {
     return html`
       <div class="column">
         ${this.entryToCreate ? this.renderCommitDialog() : html``}
-        ${this.renderCreateEntry()} ${this.renderUpdateEntry()}
-        ${this.renderRemoveEntry()} ${this.renderLinkEntries()}
+        ${this.renderCreateEntry()}
+        <hr />
+        ${this.renderUpdateEntry()}
+        <hr />
+        ${this.renderRemoveEntry()}
+        <hr />
+        ${this.renderLinkEntries()}
       </div>
     `;
   }

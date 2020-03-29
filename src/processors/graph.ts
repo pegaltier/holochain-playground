@@ -3,11 +3,7 @@ import { Cell } from "../types/cell";
 import { arrayToInt } from "./hash";
 import { Header } from "../types/header";
 
-export function dnaNodes(dna: string, playground: Playground) {
-  const cells = playground.conductors
-    .map(conductor => conductor.cells[dna])
-    .filter(cell => !!cell);
-
+export function dnaNodes(cells: Cell[]) {
   const sortedCells = cells.sort(
     (a: Cell, b: Cell) =>
       arrayToInt(new TextEncoder().encode(a.agentId)) -

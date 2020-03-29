@@ -51,6 +51,13 @@ export class SourceChain extends LitElement {
     });
     cy.on("tap", "node", event => {
       this.selectedEntry = event.target.id();
+      this.dispatchEvent(
+        new CustomEvent("entry-selected", {
+          bubbles: true,
+          composed: true,
+          detail: { entryId: this.selectedEntry }
+        })
+      );
     });
   }
 
