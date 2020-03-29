@@ -29,25 +29,40 @@ export class SourceChain extends LitElement {
       container: this.shadowRoot.getElementById("source-chain-graph"),
       elements: sourceChainNodes(this.cell),
       layout: { name: "dagre" },
-      style: [
-        // the stylesheet for the graph
-        {
-          selector: "node",
-          style: {
-            "background-color": "#666",
-            width: "30px",
-            height: "30px"
-          }
-        },
-        {
-          selector: "edge",
-          style: {
-            width: 4,
-            "target-arrow-shape": "triangle",
-            "curve-style": "bezier"
-          }
+      style: `
+        node {
+          width: 30px;
+          height: 30px;
         }
-      ]
+
+        edge {
+          width: 4;
+          target-arrow-shape: triangle;
+          curve-style: bezier;
+        }
+
+        .DNA {
+          background-color: green;
+        }
+        .AgentId {
+          background-color: lime;
+        }
+        .CreateEntry {
+          background-color: blue;
+        }
+        .RemoveEntry {
+          background-color: red;
+        }
+        .UpdateEntry {
+          background-color: cyan;
+        }
+        .LinkAdd {
+          background-color: purple;
+        }
+        .LinkRemove {
+          background-color: purple;
+        }
+      `
     });
     cy.on("tap", "node", event => {
       this.selectedEntry = event.target.id();

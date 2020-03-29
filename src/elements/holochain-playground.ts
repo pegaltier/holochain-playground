@@ -9,6 +9,7 @@ import { sharedStyles } from "./sharedStyles";
 import { Conductor } from "../types/conductor";
 import { hash } from "../processors/hash";
 import { Cell } from "../types/cell";
+import { DHTOp, DHTOpType } from "../types/dht-op";
 
 export class HolochainPlayground extends LitElement {
   @property()
@@ -27,7 +28,14 @@ export class HolochainPlayground extends LitElement {
     this.getActiveCells().forEach(cell =>
       cy.getElementById(cell.agentId).removeClass("highlighted")
     );
-    const cells = this.getActiveCells().filter(c => !!c.CASMeta[entryId]);
+    const cells = this.getActiveCells().filter(
+      c =>
+        !!Object.values(c.DHTOpTransforms).find(
+          (dhtOp: DHTOp) =>
+            dhtOp.type === DHTOpType.StoreEntry &&
+            dhtOp.header.entryAddress === entryId
+        )
+    );
 
     for (const cell of cells) {
       cy.getElementById(cell.agentId).addClass("highlighted");
@@ -41,24 +49,25 @@ export class HolochainPlayground extends LitElement {
     cytoscape.use(avsdf);
     const cy = cytoscape({
       container: this.shadowRoot.getElementById("graph"),
+      boxSelectionEnabled: true,
+
       elements: nodes,
       layout: { name: "avsdf" },
       style: `
         node {
-          background-color: #666;
           label: data(label);
-          font-size: "8px;
+          font-size: 8px;
           width: 15px;
           height: 15px;
-
         }
+
         .highlighted {
           background-color: yellow;
         }
+
         edge {
-          width: 4;
-          target-arrow-shape: "triangle";
-          curve-style: "bezier";
+          width: 1;
+          line-style: dotted;
         }
       `
     });
@@ -67,6 +76,7 @@ export class HolochainPlayground extends LitElement {
       this.selectedConductor = this.playground.conductors.find(conductor =>
         conductor.agentIds.find(agentId => agentId === evt.target.id())
       );
+      this.highlightNodesWithEntry(cy, null);
     });
 
     this.addEventListener("entry-committed", () => this.requestUpdate());

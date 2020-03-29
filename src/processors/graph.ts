@@ -2,6 +2,7 @@ import { Playground } from "../types/playground";
 import { Cell } from "../types/cell";
 import { arrayToInt } from "./hash";
 import { Header } from "../types/header";
+import { Entry } from "../types/entry";
 
 export function dnaNodes(cells: Cell[]) {
   const sortedCells = cells.sort(
@@ -10,9 +11,21 @@ export function dnaNodes(cells: Cell[]) {
       arrayToInt(new TextEncoder().encode(b.agentId))
   );
 
-  return sortedCells.map(cell => ({
+  const cellNodes = sortedCells.map(cell => ({
     data: { id: cell.agentId, label: `${cell.agentId.substr(0, 6)}...` }
   }));
+
+  const edges = sortedCells.map(cell =>
+    cell.getNeighbors().map(neighbor => ({
+      data: {
+        id: `${cell.agentId}->${neighbor}`,
+        source: cell.agentId,
+        target: neighbor
+      }
+    }))
+  );
+  
+  return [...cellNodes, ...[].concat(...edges)];
 }
 
 export function sourceChainNodes(cell: Cell) {
@@ -22,9 +35,11 @@ export function sourceChainNodes(cell: Cell) {
 
   for (const headerHash of headersHashes) {
     const header: Header = cell.CAS[headerHash];
+    const entry: Entry = cell.CAS[header.entryAddress];
     nodes.push({ data: { id: headerHash, data: header } });
     nodes.push({
-      data: { id: header.entryAddress, data: cell.CAS[header.entryAddress] }
+      data: { id: header.entryAddress, data: entry },
+      classes: [entry.type]
     });
     nodes.push({
       data: {

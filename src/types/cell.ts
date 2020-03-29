@@ -80,8 +80,26 @@ export class Cell {
     return this.sendMessage(this.dna, this.agentId, peer[0], message);
   }
 
-  getNPeersClosestTo(n: number, hash: string): string[] {
+  getNeighbors(): string[] {
     const sortedPeers = this.peers.sort(
+      (agentA: string, agentB: string) =>
+        distance(this.agentId, agentA) - distance(this.agentId, agentB)
+    );
+
+    const neighbors = sortedPeers.slice(0, this.redundancyFactor - 1);
+
+    const half = Math.floor(this.peers.length / 2);
+
+    return [
+      ...neighbors,
+      sortedPeers[half + 1],
+      sortedPeers[half + 2],
+      sortedPeers[this.peers.length - 1]
+    ];
+  }
+
+  getNPeersClosestTo(n: number, hash: string): string[] {
+    const sortedPeers = [this.agentId, ...this.peers].sort(
       (agentA: string, agentB: string) =>
         distance(hash, agentA) - distance(hash, agentB)
     );
