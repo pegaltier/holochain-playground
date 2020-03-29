@@ -3,6 +3,8 @@ import "@material/mwc-textarea";
 import "@material/mwc-button";
 import "@material/mwc-textfield";
 import "@material/mwc-dialog";
+import "@material/mwc-radio";
+import "@material/mwc-formfield";
 import { sharedStyles } from "./sharedStyles";
 import { Cell } from "../types/cell";
 import { TextArea } from "@material/mwc-textarea";
@@ -17,10 +19,13 @@ export class CreateEntries extends LitElement {
   @property()
   cell: Cell;
 
+  @property()
+  selectedEntryType: number = 0;
+
   @query("#create-entry-textarea")
   createTextarea: TextArea;
 
-  @query("#create-entry-textarea")
+  @query("#update-entry-textarea")
   updateTextarea: TextArea;
 
   @query("#update-entry-address")
@@ -40,7 +45,7 @@ export class CreateEntries extends LitElement {
   removeFromAddress: TextFieldBase;
   @query("#remove-to-address")
   removeToAddress: TextFieldBase;
-  @query("#remove-tag")
+  @query("#remove-timestamp")
   removeTimestamp: TextFieldBase;
 
   @property()
@@ -90,6 +95,16 @@ export class CreateEntries extends LitElement {
     this.setEntryValidity(this.addToAddress);
     this.setEntryValidity(this.removeFromAddress);
     this.setEntryValidity(this.removeToAddress);
+    [
+      this.createTextarea,
+      this.updateTextarea,
+      this.updateAddress,
+      this.removeAddress,
+      this.addFromAddress,
+      this.addToAddress,
+      this.removeFromAddress,
+      this.removeToAddress
+    ].forEach(ele => ele.setCustomValidity(""));
   }
 
   static get styles() {
@@ -104,7 +119,10 @@ export class CreateEntries extends LitElement {
         }
         mwc-textfield,
         mwc-textarea {
-          margin-right: 16px;
+          margin-bottom: 16px;
+        }
+        mwc-textarea {
+          width: 100%;
         }
       `
     ];
@@ -112,9 +130,12 @@ export class CreateEntries extends LitElement {
 
   renderCreateEntry() {
     return html`
-      <div class="column">
+      <div
+        class="column"
+        style=${this.selectedEntryType === 0 ? "" : "display: none;"}
+      >
         <h3>Create Entry</h3>
-        <div class="row center-content">
+        <div class="column center-content">
           <mwc-textarea
             outlined
             id="create-entry-textarea"
@@ -145,9 +166,12 @@ export class CreateEntries extends LitElement {
 
   renderUpdateEntry() {
     return html`
-      <div class="column">
+      <div
+        class="column"
+        style=${this.selectedEntryType === 1 ? "" : "display: none;"}
+      >
         <h3>Update Entry</h3>
-        <div class="row center-content">
+        <div class="column center-content">
           <mwc-textarea
             outlined
             id="update-entry-textarea"
@@ -161,7 +185,7 @@ export class CreateEntries extends LitElement {
             outlined
             id="update-entry-address"
             label="Entry to update"
-            style="width: 10em"
+            style="width: 35em"
             @input=${() => this.updateAddress.reportValidity()}
           ></mwc-textfield>
           <mwc-button
@@ -189,9 +213,12 @@ export class CreateEntries extends LitElement {
 
   renderRemoveEntry() {
     return html`
-      <div class="column">
+      <div
+        class="column"
+        style=${this.selectedEntryType === 2 ? "" : "display: none;"}
+      >
         <h3>Remove Entry</h3>
-        <div class="row center-content">
+        <div class="column center-content">
           <mwc-textfield
             outlined
             id="remove-entry-address"
@@ -220,14 +247,17 @@ export class CreateEntries extends LitElement {
 
   renderLinkEntries() {
     return html`
-      <div class="column">
+      <div
+        class="column"
+        style=${this.selectedEntryType === 3 ? "" : "display: none;"}
+      >
         <h3>Link Entries</h3>
-        <div class="row center-content">
+        <div class="column center-content">
           <mwc-textfield
             outlined
             id="add-from-address"
             label="Base entry address"
-            style="width: 14em"
+            style="width: 35em"
             @input=${() => this.addFromAddress.reportValidity()}
           ></mwc-textfield>
           <mwc-textfield
@@ -235,13 +265,13 @@ export class CreateEntries extends LitElement {
             id="add-to-address"
             label="Target entry address"
             @input=${() => this.addToAddress.reportValidity()}
-            style="width: 14em"
+            style="width: 35em"
           ></mwc-textfield>
           <mwc-textfield
             outlined
             id="add-tag"
             label="Tag of the link"
-            style="width: 14em"
+            style="width: 35em"
           ></mwc-textfield>
           <mwc-button
             raised
@@ -271,14 +301,17 @@ export class CreateEntries extends LitElement {
 
   renderRemoveLink() {
     return html`
-      <div class="column">
+      <div
+        class="column"
+        style=${this.selectedEntryType === 4 ? "" : "display: none;"}
+      >
         <h3>Remove Link</h3>
-        <div class="row center-content">
+        <div class="column center-content">
           <mwc-textfield
             outlined
             id="remove-from-address"
             label="Base entry address"
-            style="width: 14em"
+            style="width: 35em"
             @input=${() => this.removeFromAddress.reportValidity()}
           ></mwc-textfield>
           <mwc-textfield
@@ -286,13 +319,13 @@ export class CreateEntries extends LitElement {
             id="remove-to-address"
             label="Target entry address"
             @input=${() => this.removeToAddress.reportValidity()}
-            style="width: 14em"
+            style="width: 35em"
           ></mwc-textfield>
           <mwc-textfield
             outlined
             id="remove-timestamp"
             label="Timestamp of the link"
-            style="width: 14em"
+            style="width: 35em"
           ></mwc-textfield>
           <mwc-button
             raised
@@ -376,15 +409,46 @@ export class CreateEntries extends LitElement {
 
   render() {
     return html`
-      <div class="column">
+      <div class="row">
         ${this.entryToCreate ? this.renderCommitDialog() : html``}
-        ${this.renderCreateEntry()}
-        <hr />
-        ${this.renderUpdateEntry()}
-        <hr />
-        ${this.renderRemoveEntry()}
-        <hr />
-        ${this.renderLinkEntries()}
+        <div class="column" style="margin-right: 16px;">
+          <mwc-formfield label="Create Entry">
+            <mwc-radio
+              name="entryType"
+              checked
+              @change=${() => (this.selectedEntryType = 0)}
+            ></mwc-radio>
+          </mwc-formfield>
+          <mwc-formfield label="Update Entry">
+            <mwc-radio
+              name="entryType"
+              @change=${() => (this.selectedEntryType = 1)}
+            ></mwc-radio>
+          </mwc-formfield>
+          <mwc-formfield label="Remove Entry">
+            <mwc-radio
+              name="entryType"
+              @change=${() => (this.selectedEntryType = 2)}
+            ></mwc-radio>
+          </mwc-formfield>
+          <mwc-formfield label="Link Entries">
+            <mwc-radio
+              name="entryType"
+              @change=${() => (this.selectedEntryType = 3)}
+            ></mwc-radio>
+          </mwc-formfield>
+          <mwc-formfield label="Remove Links">
+            <mwc-radio
+              name="entryType"
+              @change=${() => (this.selectedEntryType = 4)}
+            ></mwc-radio>
+          </mwc-formfield>
+        </div>
+        <div class="fill" style="padding: 0 24px;">
+          ${this.renderCreateEntry()} ${this.renderUpdateEntry()}
+          ${this.renderRemoveEntry()} ${this.renderLinkEntries()}
+          ${this.renderRemoveLink()}
+        </div>
       </div>
     `;
   }

@@ -33,6 +33,8 @@
     "@authentic/mwc-card": "^0.9.0",
     "@material/mwc-button": "^0.14.1",
     "@material/mwc-dialog": "^0.14.1",
+    "@material/mwc-formfield": "^0.14.1",
+    "@material/mwc-radio": "^0.14.1",
     "@material/mwc-select": "^0.14.1",
     "@material/mwc-tab": "^0.14.1",
     "@material/mwc-tab-bar": "^0.14.1",
