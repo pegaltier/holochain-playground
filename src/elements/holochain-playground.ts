@@ -1,6 +1,5 @@
 import { LitElement, html, css, property, query } from "lit-element";
 import cytoscape from "cytoscape";
-import avsdf from "cytoscape-avsdf";
 
 import { Playground } from "../types/playground";
 import { dnaNodes } from "../processors/graph";
@@ -44,21 +43,19 @@ export class HolochainPlayground extends LitElement {
 
   async firstUpdated() {
     const nodes = dnaNodes(this.getActiveCells());
-    console.log(nodes);
 
-    cytoscape.use(avsdf);
     const cy = cytoscape({
       container: this.shadowRoot.getElementById("graph"),
       boxSelectionEnabled: true,
 
       elements: nodes,
-      layout: { name: "avsdf" },
+      layout: { name: "circle" },
       style: `
         node {
           label: data(label);
-          font-size: 8px;
-          width: 15px;
-          height: 15px;
+          font-size: 20px;
+          width: 30px;
+          height: 30px;
         }
 
         .highlighted {

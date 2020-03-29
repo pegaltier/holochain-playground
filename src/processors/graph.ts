@@ -1,14 +1,16 @@
 import { Playground } from "../types/playground";
 import { Cell } from "../types/cell";
-import { arrayToInt } from "./hash";
+import { arrayToInt, compareBigInts, distance } from "./hash";
 import { Header } from "../types/header";
 import { Entry } from "../types/entry";
+import multihashes from "multihashes";
 
 export function dnaNodes(cells: Cell[]) {
-  const sortedCells = cells.sort(
-    (a: Cell, b: Cell) =>
-      arrayToInt(new TextEncoder().encode(a.agentId)) -
-      arrayToInt(new TextEncoder().encode(b.agentId))
+  const sortedCells = cells.sort((a: Cell, b: Cell) =>
+    compareBigInts(
+      arrayToInt(multihashes.fromB58String(a.agentId)),
+      arrayToInt(multihashes.fromB58String(b.agentId))
+    )
   );
 
   const cellNodes = sortedCells.map(cell => ({
@@ -24,7 +26,7 @@ export function dnaNodes(cells: Cell[]) {
       }
     }))
   );
-  
+
   return [...cellNodes, ...[].concat(...edges)];
 }
 

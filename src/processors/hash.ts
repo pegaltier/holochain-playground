@@ -2,6 +2,7 @@ import multihashing from "multihashing";
 import multihashes from "multihashes";
 import { Buffer } from "buffer";
 import CID from "cids";
+import bitwise from "bitwise";
 
 export function ab2str(buf) {
   return String.fromCharCode.apply(null, new Uint16Array(buf));
@@ -27,35 +28,35 @@ export function hash(content: any): string {
   return cid.toString();
 }
 
-function xor(a, b) {
-  if (!Buffer.isBuffer(a)) a = new Buffer(a);
-  if (!Buffer.isBuffer(b)) b = new Buffer(b);
-  var res = [];
-  if (a.length > b.length) {
-    for (var i = 0; i < b.length; i++) {
-      res.push(a[i] ^ b[i]);
-    }
-  } else {
-    for (var i = 0; i < a.length; i++) {
-      res.push(a[i] ^ b[i]);
-    }
-  }
-  return new Buffer(res);
-}
-
-export function distance(hash1: string, hash2: string): number {
+export function distance(hash1: string, hash2: string): bigint {
   const array1 = multihashes.fromB58String(hash1);
   const array2 = multihashes.fromB58String(hash2);
+  const buffer = bitwise.buffer.xor(array1, array2);
 
-  const buffer = xor(array1, array2);
-  return arrayToInt(buffer);
+  const distance = arrayToInt(array1) - arrayToInt(array2);
+
+  return distance > 0 ? distance : -distance;
 }
 
-export function arrayToInt(array: Uint8Array): number {
-  var length = array.length;
+export function arrayToInt(array: Uint8Array): bigint {
+  var hex = [];
 
-  let buffer = Buffer.from(array);
-  var result = buffer.readUIntBE(0, length);
+  array.forEach(function(i) {
+    var h = i.toString(16);
+    if (h.length % 2) {
+      h = "0" + h;
+    }
+    hex.push(h);
+  });
 
-  return result;
+  return BigInt("0x" + hex.join(""));
+}
+
+export function compareBigInts(a: bigint, b: bigint): number {
+  if (a > b) {
+    return 1;
+  } else if (a < b) {
+    return -1;
+  }
+  return 0;
 }

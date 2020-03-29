@@ -67,8 +67,6 @@ export class CreateEntries extends LitElement {
 
   setJsonValidity(element) {
     element.validityTransform = (newValue, nativeValidity) => {
-      console.log(newValue, nativeValidity);
-
       if (newValue === "") return { valid: false };
       try {
         const json = JSON.parse(newValue);

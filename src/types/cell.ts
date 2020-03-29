@@ -8,7 +8,7 @@ import {
   sortDHTOps
 } from "./dht-op";
 import { Entry, EntryType } from "./entry";
-import { hash, distance } from "../processors/hash";
+import { hash, distance, compareBigInts } from "../processors/hash";
 import { Header } from "./header";
 import { NetworkMessageType, NetworkMessage, SendMessage } from "./network";
 
@@ -63,6 +63,14 @@ export class Cell {
 
       const peers = this.getNPeersClosestTo(this.redundancyFactor, hood);
 
+      console.log(
+        hood,
+        [this.agentId, ...this.peers],
+        peers,
+        [this.agentId, ...this.peers].map(p => distance(hood, p)),
+        peers.map(p => distance(hood, p))
+      );
+
       for (const peer of peers) {
         this.sendMessage(this.dna, this.agentId, peer, message);
       }
@@ -81,27 +89,30 @@ export class Cell {
   }
 
   getNeighbors(): string[] {
-    const sortedPeers = this.peers.sort(
-      (agentA: string, agentB: string) =>
-        distance(this.agentId, agentA) - distance(this.agentId, agentB)
-    );
+    const sortedPeers = this.peers.sort((agentA: string, agentB: string) => {
+      const distanceA = distance(this.agentId, agentA);
+      const ditsanceB = distance(this.agentId, agentB);
+      return compareBigInts(distanceA, ditsanceB);
+    });
 
-    const neighbors = sortedPeers.slice(0, this.redundancyFactor - 1);
+    const neighbors = sortedPeers.slice(0, this.redundancyFactor + 2);
 
     const half = Math.floor(this.peers.length / 2);
 
     return [
       ...neighbors,
       sortedPeers[half + 1],
-      sortedPeers[half + 2],
       sortedPeers[this.peers.length - 1]
     ];
   }
 
   getNPeersClosestTo(n: number, hash: string): string[] {
     const sortedPeers = [this.agentId, ...this.peers].sort(
-      (agentA: string, agentB: string) =>
-        distance(hash, agentA) - distance(hash, agentB)
+      (agentA: string, agentB: string) => {
+        const distanceA = distance(hash, agentA);
+        const distanceB = distance(hash, agentB);
+        return compareBigInts(distanceA, distanceB);
+      }
     );
 
     return sortedPeers.slice(0, n);
