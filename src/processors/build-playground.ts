@@ -36,6 +36,10 @@ export function buildPlayground(
     );
   }
 
+  for (const conductor of conductors) {
+    conductor.initDna(dna);
+  }
+
   return {
     conductors,
     redundancyFactor

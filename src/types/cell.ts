@@ -32,9 +32,11 @@ export class Cell {
     protected sendMessage: SendMessage,
     public redundancyFactor: number,
     public peers: string[]
-  ) {
-    this.createEntry({ type: EntryType.DNA, payload: dna });
-    this.createEntry({ type: EntryType.AgentId, payload: agentId });
+  ) {}
+
+  init() {
+    this.createEntry({ type: EntryType.DNA, payload: this.dna });
+    this.createEntry({ type: EntryType.AgentId, payload: this.agentId });
   }
 
   createEntry(entry: Entry) {
@@ -98,6 +100,18 @@ export class Cell {
     return header;
   }
 
+  initDHTShardForEntry(entryHash: string) {
+    if (!this.CASMeta[entryHash]) {
+      this.CASMeta[entryHash] = {
+        HEADERS: [],
+        LINKS_TO: [],
+        CRUDStatus: undefined,
+        REPLACED_BY: undefined,
+        DELETED_BY: undefined
+      };
+    }
+  }
+
   updateDHTShard() {
     this.CASMeta = {};
 
@@ -110,18 +124,21 @@ export class Cell {
 
       switch (dhtOp.type) {
         case DHTOpType.RegisterAgentActivity:
-          if (!this.CASMeta[dhtOp.header.agentId][AGENT_HEADERS]) {
-            this.CASMeta[dhtOp.header.agentId][AGENT_HEADERS] = [];
+          if (!this.CASMeta[dhtOp.header.agentId]) {
+            this.CASMeta[dhtOp.header.agentId] = {
+              AGENT_HEADERS: []
+            };
           }
+
           this.CASMeta[dhtOp.header.agentId][AGENT_HEADERS].push(headerHash);
           break;
         case DHTOpType.StoreEntry:
           const entryHash = hash(dhtOp.entry);
           this.CAS[entryHash] = dhtOp.entry;
 
-          if (!this.CASMeta[entryHash][CRUDStatus]) {
-            this.CASMeta[entryHash][CRUDStatus] = "Live";
-          }
+          this.initDHTShardForEntry(entryHash);
+
+          this.CASMeta[entryHash][CRUDStatus] = "Live";
 
           if (dhtOp.header.replacedEntryAddress) {
             this.CASMeta[entryHash][REPLACES] =
@@ -134,24 +151,22 @@ export class Cell {
           this.CASMeta[entryHash][HEADERS].push(headerHash);
           break;
         case DHTOpType.RegisterUpdatedTo:
-          if (
-            !this.CASMeta[entryHash][CRUDStatus] ||
-            this.CASMeta[entryHash][CRUDStatus] === "Live"
-          ) {
-            this.CASMeta[entryHash][CRUDStatus] = "Replaced";
-          }
+          this.initDHTShardForEntry(entryHash);
+          this.CASMeta[entryHash][CRUDStatus] = "Replaced";
+
           this.CASMeta[entryHash][REPLACED_BY] = hash(dhtOp.entry.newEntry);
 
           break;
         case DHTOpType.RegisterDeletedBy:
+          this.initDHTShardForEntry(entryHash);
+
           this.CASMeta[entryHash][CRUDStatus] = "Deleted";
           this.CASMeta[entryHash][REPLACED_BY] = undefined;
           this.CASMeta[entryHash][DELETED_BY] = dhtOp.entry;
 
           break;
         case DHTOpType.RegisterAddLink:
-          if (!this.CASMeta[dhtOp.entry.payload.base][LINKS_TO])
-            this.CASMeta[dhtOp.entry.payload.base][LINKS_TO] = [];
+          this.initDHTShardForEntry(dhtOp.entry.payload.base);
 
           this.CASMeta[dhtOp.entry.payload.base][LINKS_TO].push({
             target: dhtOp.entry.payload.target,
@@ -160,6 +175,8 @@ export class Cell {
           });
           break;
         case DHTOpType.RegisterRemoveLink:
+          this.initDHTShardForEntry(dhtOp.entry.payload.base);
+
           const linkIndex = (this.CASMeta[dhtOp.entry.payload.base][
             LINKS_TO
           ] as Array<any>).findIndex(

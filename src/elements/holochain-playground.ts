@@ -8,6 +8,7 @@ import { buildPlayground } from "../processors/build-playground";
 import { sharedStyles } from "./sharedStyles";
 import { Conductor } from "../types/conductor";
 import { hash } from "../processors/hash";
+import { Cell } from "../types/cell";
 
 export class HolochainPlayground extends LitElement {
   @property()
@@ -55,13 +56,35 @@ export class HolochainPlayground extends LitElement {
   }
 
   getNodes() {
-    return this.playground.conductors.filter(c =>
-      Object.keys(c.cells).includes(this.selectedDNA)
-    ).length;
+    return this.getActiveCells().length;
   }
 
-  getDHTOps() {
-    return 0;
+  getActiveCells(): Cell[] {
+    return this.playground.conductors
+      .map(c => c.cells[this.selectedDNA])
+      .filter(c => !!c);
+  }
+
+  getGlobalDHTOps() {
+    let dhtOps = 0;
+
+    for (const cell of this.getActiveCells()) {
+      dhtOps += Object.keys(cell.DHTOpTransforms).length;
+    }
+
+    return dhtOps;
+  }
+
+  getUniqueDHTOps() {
+    const globalDHTOps = {};
+
+    for (const cell of this.getActiveCells()) {
+      for (const hash of Object.keys(cell.DHTOpTransforms)) {
+        globalDHTOps[hash] = {};
+      }
+    }
+
+    return Object.keys(globalDHTOps).length;
   }
 
   render() {
@@ -75,11 +98,11 @@ export class HolochainPlayground extends LitElement {
                 <h3>DNA: ${this.selectedDNA}</h3>
                 <div class="row">
                   <span>Nodes: ${this.getNodes()}, </span>
-                  <span
-                    > Redundancy factor:
-                    ${this.playground.redundancyFactor}, </span
-                  >
-                  <span>Global DHT Ops: ${this.getDHTOps()}</span>
+                  <span>
+                    Redundancy factor: ${this.playground.redundancyFactor},
+                  </span>
+                  <span>Global DHT Ops: ${this.getGlobalDHTOps()}</span>
+                  <span>Unique DHT Ops: ${this.getUniqueDHTOps()}</span>
                 </div>
               </div>
             </div>

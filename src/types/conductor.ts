@@ -35,6 +35,10 @@ export class Conductor {
     this.cells[dna] = cell;
   }
 
+  initDna(dna: string) {
+    this.cells[dna].init();
+  }
+
   inboundNetworkMessage(
     dna: string,
     fromAgentId: string,
