@@ -7,10 +7,10 @@ module.exports = {
   resolve: {
     alias: {
       "lit-element": path.resolve("./node_modules/lit-element"),
-      "lit-html": path.resolve("./node_modules/lit-html")
+      "lit-html": path.resolve("./node_modules/lit-html"),
+      "wicg-inert": path.resolve("./node_modules/wicg-inert/dist/inert")
     },
-    extensions: [".ts", ".tsx", ".js", ".json", ".css", ".scss", ".html"],
-    mainFields: ["main", "module"]
+    extensions: [".ts", ".tsx", ".js", ".json", ".css", ".scss", ".html"]
   },
   entry: ["babel-polyfill", "./src/index.ts"],
   devServer: {

@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "build": "rimraf dist && webpack --mode=production",
+    "build": "rimraf dist && NODE_ENV=production webpack --mode=production",
     "start": "webpack-dev-server",
     "publish": "gh-pages -d dist"
   },
