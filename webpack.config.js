@@ -43,7 +43,9 @@ module.exports = {
     }),
     new BaseHrefWebpackPlugin({
       baseHref:
-        process.env.NODE_ENV == "development" ? "/" : "/holochain-playground/"
+        !process.env.NODE_ENV || process.env.NODE_ENV == "development"
+          ? "/"
+          : "/holochain-playground/"
     })
   ]
 };

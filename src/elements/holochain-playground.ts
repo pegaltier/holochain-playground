@@ -40,6 +40,14 @@ export class HolochainPlayground extends LitElement {
             width: "15px",
             height: "15px"
           }
+        },
+        {
+          selector: "edge",
+          style: {
+            width: 4,
+            "target-arrow-shape": "triangle",
+            "curve-style": "bezier"
+          }
         }
       ]
     });
@@ -87,28 +95,31 @@ export class HolochainPlayground extends LitElement {
     return Object.keys(globalDHTOps).length;
   }
 
+  renderDNACard() {
+    return html`
+      <mwc-card style="width: auto; padding: 16px; padding-bottom: 0;">
+        <div style="padding: 16px;" class="row">
+          <div class="column">
+            <h3>DNA: ${this.selectedDNA}</h3>
+            <div class="row">
+              <span>Nodes: ${this.getNodes()}, </span>
+              <span>
+                Redundancy factor: ${this.playground.redundancyFactor},
+              </span>
+              <span>Global DHT Ops: ${this.getGlobalDHTOps()}</span>
+              <span>Unique DHT Ops: ${this.getUniqueDHTOps()}</span>
+            </div>
+          </div>
+        </div>
+      </mwc-card>
+    `;
+  }
+
   render() {
     return html`
       <div class="row fill" style="height: 100%;">
-        <div class="column" style="flex: 1;">
-          <div id="graph" style="height: 85%"></div>
-          <mwc-card style="width: auto; padding: 16px;">
-            <div style="padding: 16px;" class="row">
-              <div class="column">
-                <h3>DNA: ${this.selectedDNA}</h3>
-                <div class="row">
-                  <span>Nodes: ${this.getNodes()}, </span>
-                  <span>
-                    Redundancy factor: ${this.playground.redundancyFactor},
-                  </span>
-                  <span>Global DHT Ops: ${this.getGlobalDHTOps()}</span>
-                  <span>Unique DHT Ops: ${this.getUniqueDHTOps()}</span>
-                </div>
-              </div>
-            </div>
-          </mwc-card>
-        </div>
         <div style="flex: 1;" class="column">
+          ${this.renderDNACard()}
           ${this.selectedConductor
             ? html`
                 <conductor-detail
@@ -123,6 +134,10 @@ export class HolochainPlayground extends LitElement {
                 </div>
               `}
         </div>
+        <div class="column" style="flex: 1;">
+          <div id="graph" style="height: 100%"></div>
+        </div>
+
       </div>
     `;
   }

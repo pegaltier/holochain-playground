@@ -10,7 +10,7 @@ export function buildPlayground(
 
   const redundancyFactor = 3;
 
-  const sendMessage: SendMessage = async (
+  const sendMessage: SendMessage = (
     dna: string,
     fromAgentId: string,
     toAgentId: string,
@@ -19,7 +19,8 @@ export function buildPlayground(
     const conductor = conductors.find(c =>
       c.agentIds.find(a => a === toAgentId)
     );
-    if (conductor) conductor.inboundNetworkMessage(dna, fromAgentId, message);
+    if (conductor)
+      return conductor.inboundNetworkMessage(dna, fromAgentId, message);
   };
 
   for (let i = 0; i < numConductors; i++) {

@@ -66,6 +66,17 @@ export class Cell {
     }
   }
 
+  getEntry(hash: string): Entry | undefined {
+    const peer = this.getNPeersClosestTo(1, hash);
+
+    const message: NetworkMessage = {
+      type: NetworkMessageType.GetEntry,
+      payload: hash
+    };
+
+    return this.sendMessage(this.dna, this.agentId, peer[0], message);
+  }
+
   getNPeersClosestTo(n: number, hash: string): string[] {
     const sortedPeers = this.peers.sort(
       (agentA: string, agentB: string) =>
@@ -88,7 +99,7 @@ export class Cell {
       agentId: this.agentId,
       entryAddress: entryId,
       replacedEntryAddress,
-      timestamp: Date.now(),
+      timestamp: Math.floor(Date.now() / 1000),
       lastHeaderAddress
     };
 
@@ -195,10 +206,12 @@ export class Cell {
 
   /** Network */
 
-  handleNetworkMessage(fromAgentId: string, message: NetworkMessage) {
+  handleNetworkMessage(fromAgentId: string, message: NetworkMessage): any {
     switch (message.type) {
       case NetworkMessageType.Publish:
         return this.handlePublishRequest(message.payload);
+      case NetworkMessageType.GetEntry:
+        return this.CAS[message.payload];
     }
   }
 

@@ -1,7 +1,8 @@
 import { DHTOp } from "./dht-op";
 
 export enum NetworkMessageType {
-  Publish
+  Publish,
+  GetEntry
 }
 
 export interface NetworkMessageBody<T, P> {
@@ -9,14 +10,13 @@ export interface NetworkMessageBody<T, P> {
   payload: P;
 }
 
-export type NetworkMessage = NetworkMessageBody<
-  NetworkMessageType.Publish,
-  DHTOp
->;
+export type NetworkMessage =
+  | NetworkMessageBody<NetworkMessageType.Publish, DHTOp>
+  | NetworkMessageBody<NetworkMessageType.GetEntry, string>;
 
 export type SendMessage = (
   dna: string,
   fromAgentId: string,
   toAgentId: string,
   message: NetworkMessage
-) => Promise<void>;
+) => any;
