@@ -1,6 +1,7 @@
 const path = require("path");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const { BaseHrefWebpackPlugin } = require("base-href-webpack-plugin");
 
 module.exports = {
   resolve: {
@@ -38,8 +39,11 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: "index.html",
-      baseUrl: process.env.NODE_ENV == "development" ? "/" : "/holochain-playground/"
+      template: "index.html"
+    }),
+    new BaseHrefWebpackPlugin({
+      baseHref:
+        process.env.NODE_ENV == "development" ? "/" : "/holochain-playground/"
     })
   ]
 };
