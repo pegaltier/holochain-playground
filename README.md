@@ -1,30 +1,7 @@
-<p align="center">
-  <img width="200" src="https://open-wc.org/hero.png"></img>
-</p>
+# Holochain Playground
 
-## Open-wc Starter App
+Visit the [playground](https://holochain-open-dev.github.io/holochain-playground/).
 
-[![Built with open-wc recommendations](https://img.shields.io/badge/built%20with-open--wc-blue.svg)](https://github.com/open-wc)
+This is an experimental ongoing effort to build a holochain playground simulation. It's trying to follow as accurately as possible the internal mechanisms of holochain, displaying the DHT and enablind detailed inspection.
 
-## Quickstart
-
-To get started:
-
-```sh
-npm init @open-wc
-# requires node 10 & npm 6 or higher
-```
-
-## Scripts
-
-- `start` runs your app for development, reloading on file changes
-- `start:build` runs your app after it has been built using the build command
-- `build` builds your app and outputs it in your `dist` directory
-- `test` runs your test suite with Karma
-- `lint` runs the linter for your project
-
-## Tooling configs
-
-For most of the tools, the configuration is in the `package.json` to reduce the amount of files in your project.
-
-If you customize the configuration a lot, you can consider moving them to individual files.
+For now, it includes a limited set of features (cannot modify redundancy factor, or number or nodes...). My intention is to maintain it and improve it, to also achieve dynamic situtations (nodes dropping out of the network), contributions would be highly appreciated.
