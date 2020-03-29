@@ -35,7 +35,7 @@ export type DHTOp =
   | DHTOpContent<DHTOpType.RegisterUpdatedTo, { newEntry: Entry }>
   | DHTOpContent<
       DHTOpType.RegisterDeletedBy,
-      EntryContent<EntryType.DeleteEntry, { deletedEntry: string }>
+      EntryContent<EntryType.RemoveEntry, { deletedEntry: string }>
     >
   | DHTOpContent<
       DHTOpType.RegisterAddLink,
@@ -48,7 +48,7 @@ export type DHTOp =
       DHTOpType.RegisterRemoveLink,
       EntryContent<
         EntryType.LinkRemove,
-        { base: string; target: string; tag: string; timestamp: number }
+        { base: string; target: string; timestamp: number }
       >
     >;
 
@@ -68,7 +68,7 @@ export function entryToDHTOps(entry: Entry, header: Header): DHTOp[] {
         ];
       }
       break;
-    case EntryType.DeleteEntry:
+    case EntryType.RemoveEntry:
       additionalDHTOps = [
         {
           header,

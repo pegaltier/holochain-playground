@@ -18,7 +18,7 @@ export class SourceChain extends LitElement {
       sharedStyles,
       css`
         :host {
-          display: flex;
+          display: flex;DeleteEntry
         }
       `
     ];

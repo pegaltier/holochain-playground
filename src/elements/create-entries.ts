@@ -2,10 +2,16 @@ import { LitElement, html, property, query, css } from "lit-element";
 import "@material/mwc-textarea";
 import "@material/mwc-button";
 import "@material/mwc-textfield";
+import "@material/mwc-dialog";
 import { sharedStyles } from "./sharedStyles";
 import { Cell } from "../types/cell";
 import { TextArea } from "@material/mwc-textarea";
 import { TextFieldBase } from "@material/mwc-textfield/mwc-textfield-base";
+import { EntryType, Entry } from "../types/entry";
+
+import "@alenaksu/json-viewer";
+import { entryToDHTOps, neighborhood } from "../types/dht-op";
+import { hash } from "../processors/hash";
 
 export class CreateEntries extends LitElement {
   @property()
@@ -22,12 +28,23 @@ export class CreateEntries extends LitElement {
 
   @query("#remove-entry-address")
   removeAddress: TextFieldBase;
+
   @query("#add-from-address")
   addFromAddress: TextFieldBase;
   @query("#add-to-address")
   addToAddress: TextFieldBase;
   @query("#add-tag")
   addTag: TextFieldBase;
+
+  @query("#remove-from-address")
+  removeFromAddress: TextFieldBase;
+  @query("#remove-to-address")
+  removeToAddress: TextFieldBase;
+  @query("#remove-tag")
+  removeTimestamp: TextFieldBase;
+
+  @property()
+  entryToCreate: { entry: Entry; replaces?: string } | undefined = undefined;
 
   setEntryValidity(element) {
     element.validityTransform = (newValue, nativeValidity) => {
@@ -71,6 +88,8 @@ export class CreateEntries extends LitElement {
     this.setEntryValidity(this.removeAddress);
     this.setEntryValidity(this.addFromAddress);
     this.setEntryValidity(this.addToAddress);
+    this.setEntryValidity(this.removeFromAddress);
+    this.setEntryValidity(this.removeToAddress);
   }
 
   static get styles() {
@@ -105,6 +124,13 @@ export class CreateEntries extends LitElement {
             .disabled=${!(
               this.createTextarea && this.createTextarea.validity.valid
             )}
+            @click=${() =>
+              (this.entryToCreate = {
+                entry: {
+                  type: EntryType.CreateEntry,
+                  payload: this.createTextarea.value
+                }
+              })}
           ></mwc-button>
         </div>
       </div>
@@ -141,6 +167,14 @@ export class CreateEntries extends LitElement {
               this.updateAddress &&
               this.updateAddress.validity.valid
             )}
+            @click=${() =>
+              (this.entryToCreate = {
+                entry: {
+                  type: EntryType.CreateEntry,
+                  payload: this.createTextarea.value
+                },
+                replaces: this.updateAddress.value
+              })}
           ></mwc-button>
         </div>
       </div>
@@ -165,6 +199,13 @@ export class CreateEntries extends LitElement {
             .disabled=${!(
               this.removeAddress && this.removeAddress.validity.valid
             )}
+            @click=${() =>
+              (this.entryToCreate = {
+                entry: {
+                  type: EntryType.RemoveEntry,
+                  payload: { deletedEntry: this.removeAddress.value }
+                }
+              })}
           ></mwc-button>
         </div>
       </div>
@@ -192,7 +233,7 @@ export class CreateEntries extends LitElement {
           ></mwc-textfield>
           <mwc-textfield
             outlined
-            id="add-tag-address"
+            id="add-tag"
             label="Tag of the link"
             style="width: 14em"
           ></mwc-textfield>
@@ -200,17 +241,131 @@ export class CreateEntries extends LitElement {
             raised
             label="LINK"
             .disabled=${!(
-              this.addFromAddress && this.addFromAddress.validity.valid
+              this.addFromAddress &&
+              this.addFromAddress.validity.valid &&
+              this.addToAddress &&
+              this.addToAddress.validity.valid
             )}
+            @click=${() =>
+              (this.entryToCreate = {
+                entry: {
+                  type: EntryType.LinkAdd,
+                  payload: {
+                    base: this.addFromAddress.value,
+                    target: this.addToAddress.value,
+                    tag: this.addTag.value
+                  }
+                }
+              })}
           ></mwc-button>
         </div>
       </div>
     `;
   }
 
+  renderRemoveLink() {
+    return html`
+      <div class="column">
+        <h3>Remove Link</h3>
+        <div class="row center-content">
+          <mwc-textfield
+            outlined
+            id="remove-from-address"
+            label="Base entry address"
+            style="width: 14em"
+            @input=${() => this.removeFromAddress.reportValidity()}
+          ></mwc-textfield>
+          <mwc-textfield
+            outlined
+            id="remove-to-address"
+            label="Target entry address"
+            @input=${() => this.removeToAddress.reportValidity()}
+            style="width: 14em"
+          ></mwc-textfield>
+          <mwc-textfield
+            outlined
+            id="remove-timestamp"
+            label="Timestamp of the link"
+            style="width: 14em"
+          ></mwc-textfield>
+          <mwc-button
+            raised
+            label="REMOVE LINK"
+            .disabled=${!(
+              this.removeFromAddress &&
+              this.removeFromAddress.validity.valid &&
+              this.removeToAddress &&
+              this.removeToAddress.validity.valid
+            )}
+            @click=${() =>
+              (this.entryToCreate = {
+                entry: {
+                  type: EntryType.LinkRemove,
+                  payload: {
+                    base: this.removeFromAddress.value,
+                    target: this.removeToAddress.value,
+                    timestamp: parseInt(this.removeTimestamp.value)
+                  }
+                }
+              })}
+          ></mwc-button>
+        </div>
+      </div>
+    `;
+  }
+
+  buildDHTOpsTransforms() {
+    const dhtOps = entryToDHTOps(
+      this.entryToCreate.entry,
+      this.cell.newHeader(
+        hash(this.entryToCreate.entry),
+        this.entryToCreate.replaces
+      )
+    );
+
+    return dhtOps.map(dhtOp => ({
+      operation: dhtOp,
+      neighborhood: neighborhood(dhtOp)
+    }));
+  }
+
+  renderCommitDialog() {
+    return html`
+      <mwc-dialog .open=${!!this.entryToCreate} heading="Commit new entry">
+        <div>
+          This will create these DHT Operations on the given neighborhoods
+        </div>
+
+        <json-viewer .data=${this.buildDHTOpsTransforms()}></json-viewer>
+
+        <mwc-button
+          slot="secondaryAction"
+          dialogAction="cancel"
+          @click=${() => (this.entryToCreate = undefined)}
+        >
+          Cancel
+        </mwc-button>
+        <mwc-button
+          slot="primaryAction"
+          dialogAction="confirm"
+          @click=${() => {
+            this.cell.createEntry(
+              this.entryToCreate.entry,
+              this.entryToCreate.replaces
+            );
+            this.entryToCreate = undefined;
+          }}
+        >
+          Commit entry
+        </mwc-button>
+      </mwc-dialog>
+    `;
+  }
+
   render() {
     return html`
       <div class="column">
+        ${this.entryToCreate ? this.renderCommitDialog() : html``}
         ${this.renderCreateEntry()} ${this.renderUpdateEntry()}
         ${this.renderRemoveEntry()} ${this.renderLinkEntries()}
       </div>

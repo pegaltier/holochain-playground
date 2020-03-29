@@ -35,16 +35,19 @@ export class Cell {
   ) {}
 
   init() {
-    this.createEntry({ type: EntryType.DNA, payload: this.dna });
-    this.createEntry({ type: EntryType.AgentId, payload: this.agentId });
+    this.createEntry({ type: EntryType.DNA, payload: this.dna }, undefined);
+    this.createEntry(
+      { type: EntryType.AgentId, payload: this.agentId },
+      undefined
+    );
   }
 
-  createEntry(entry: Entry) {
+  createEntry(entry: Entry, replaces: string | undefined) {
     const entryId = hash(entry);
 
     this.CAS[entryId] = entry;
 
-    const header = this.createHeader(entryId, undefined);
+    const header = this.createHeader(entryId, replaces);
     const dhtOps = entryToDHTOps(entry, header);
 
     this.fastPush(dhtOps);
@@ -86,23 +89,26 @@ export class Cell {
     return sortedPeers.slice(0, n);
   }
 
-  createHeader(
-    entryId: string,
-    replacedEntryAddress: string | undefined
-  ): Header {
+  newHeader(entryId: string, replacedEntryAddress: string | undefined): Header {
     const lastHeaderAddress =
       this.sourceChain.length > 0
         ? this.sourceChain[this.sourceChain.length - 1]
         : undefined;
 
-    const header: Header = {
+    return {
       agentId: this.agentId,
       entryAddress: entryId,
       replacedEntryAddress,
       timestamp: Math.floor(Date.now() / 1000),
       lastHeaderAddress
     };
+  }
 
+  createHeader(
+    entryId: string,
+    replacedEntryAddress: string | undefined
+  ): Header {
+    const header = this.newHeader(entryId, replacedEntryAddress);
     const headerId = hash(header);
 
     this.CAS[headerId] = header;
@@ -193,7 +199,6 @@ export class Cell {
           ] as Array<any>).findIndex(
             link =>
               link.target === dhtOp.entry.payload.target &&
-              link.tag === dhtOp.entry.payload.tag &&
               link.timestamp === dhtOp.entry.payload.timestamp
           );
           (this.CASMeta[dhtOp.entry.payload.base][LINKS_TO] as Array<

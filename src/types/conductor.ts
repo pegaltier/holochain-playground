@@ -43,7 +43,7 @@ export class Conductor {
     dna: string,
     fromAgentId: string,
     message: NetworkMessage
-  ): void {
+  ): any {
     return this.cells[dna].handleNetworkMessage(fromAgentId, message);
   }
 }
