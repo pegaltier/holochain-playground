@@ -5,7 +5,7 @@ import { Entry, EntryType } from "./entry";
 import { Header } from "./header";
 
 export class Conductor {
-  readonly agentIds: string[];
+  agentIds: string[];
   readonly cells: Dictionary<Cell> = {};
 
   constructor(protected seed: string) {

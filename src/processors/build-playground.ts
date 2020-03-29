@@ -1,10 +1,10 @@
 import { Playground } from "../types/playground";
 import { Conductor } from "../types/conductor";
 
-export async function buildPlayground(
+export function buildPlayground(
   dna: string,
   numConductors: number
-): Promise<Playground> {
+): Playground {
   const conductors = [];
 
   for (let i = 0; i < numConductors; i++) {
@@ -14,6 +14,7 @@ export async function buildPlayground(
   }
 
   return {
-    conductors
+    conductors,
+    redundancyFactor: 3
   };
 }

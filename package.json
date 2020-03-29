@@ -1,21 +1,24 @@
 {
   "scripts": {
-    "build": "rimraf dist && rollup -c rollup.config.ts",
-    "start": "concurrently \"rollup -c rollup.config.ts -w\" \"es-dev-server --app-index index.html --root-dir dist --open --watch\""
+    "build": "webpack",
+    "start": "webpack-dev-server"
   },
   "devDependencies": {
-    "@open-wc/building-rollup": "^0.21.0",
-    "@rollup/plugin-commonjs": "^11.0.2",
-    "@rollup/plugin-node-resolve": "^7.1.1",
+    "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/plugin-proposal-decorators": "^7.8.3",
+    "@babel/preset-typescript": "^7.9.0",
+    "babel-loader": "^8.1.0",
+    "babel-polyfill": "^6.26.0",
     "concurrently": "^5.1.0",
+    "copy-webpack-plugin": "^5.1.1",
     "es-dev-server": "^1.5.0",
+    "html-webpack-plugin": "^4.0.3",
     "rimraf": "^2.6.3",
-    "rollup": "^1.15.4",
-    "rollup-plugin-node-builtins": "^2.1.2",
-    "rollup-plugin-node-globals": "^1.4.0",
-    "rollup-plugin-sourcemaps": "^0.5.0",
-    "rollup-plugin-typescript2": "^0.27.0",
-    "typescript": "^3.8.3"
+    "ts-loader": "^6.2.2",
+    "typescript": "^3.8.3",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.10.3"
   },
   "name": "holochain-playground",
   "version": "0.0.0",
@@ -23,10 +26,14 @@
   "author": "holochain-playground",
   "license": "MIT",
   "dependencies": {
+    "@authentic/mwc-card": "^0.9.0",
+    "@material/mwc-select": "^0.14.1",
+    "cids": "^0.8.0",
     "cytoscape": "^3.14.1",
     "cytoscape-avsdf": "^1.0.0",
     "lit-element": "^2.0.1",
     "lit-html": "^1.0.0",
-    "multihashes": "^0.4.18"
+    "multihashes": "^0.4.18",
+    "multihashing": "^0.3.3"
   }
 }

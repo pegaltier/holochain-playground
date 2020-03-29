@@ -1,5 +1,7 @@
+import multihashing from "multihashing";
 import multihashes from "multihashes";
 import { Buffer } from "buffer";
+import CID from "cids";
 
 export function ab2str(buf) {
   return String.fromCharCode.apply(null, new Uint16Array(buf));
@@ -17,12 +19,12 @@ export function str2ab(str) {
 export function hash(content: any): string {
   const contentString =
     typeof content === "string" ? content : JSON.stringify(content);
-  
-  const encoded = multihashes.encode(
-    Buffer.from(contentString, "utf-8"),
-    "sha2-256"
-  );
-  return multihashes.toB58String(encoded);
+  const buffer = Buffer.from(contentString, "utf-8");
+
+  const encoded = multihashing(buffer, "sha2-256");
+  const cid = new CID(0, "dag-pb", encoded);
+
+  return cid.toString();
 }
 
 function xor(a, b) {
