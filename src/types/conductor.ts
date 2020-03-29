@@ -3,6 +3,7 @@ import { Cell } from "./cell";
 import { hash } from "../processors/hash";
 import { Entry, EntryType } from "./entry";
 import { Header } from "./header";
+import { entryToDHTOps } from "./dht-op";
 
 export class Conductor {
   agentIds: string[];
@@ -48,10 +49,9 @@ export class Conductor {
 
     cell.CAS[entryId] = entry;
 
-    this.createHeader(cell, entryId);
+    const header = this.createHeader(cell, entryId);
+    const dhtOps = entryToDHTOps(entry, header);
   }
-
-  buildDhtOp(cell: Cell, entry: Entry, header: Header) {}
 
   createHeader(cell: Cell, entryId: string): Header {
     const lastHeaderAddress =
