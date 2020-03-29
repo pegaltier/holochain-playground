@@ -24,6 +24,8 @@ export class HolochainPlayground extends LitElement {
   element: HTMLElement;
 
   async firstUpdated() {
+    this.addEventListener("entry-committed", () => this.requestUpdate());
+
     cytoscape.use(avsdf);
     const cy = cytoscape({
       container: this.shadowRoot.getElementById("graph"),
@@ -137,7 +139,6 @@ export class HolochainPlayground extends LitElement {
         <div class="column" style="flex: 1;">
           <div id="graph" style="height: 100%"></div>
         </div>
-
       </div>
     `;
   }

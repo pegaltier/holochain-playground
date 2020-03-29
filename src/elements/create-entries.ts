@@ -354,6 +354,12 @@ export class CreateEntries extends LitElement {
               this.entryToCreate.replaces
             );
             this.entryToCreate = undefined;
+            this.dispatchEvent(
+              new CustomEvent("entry-committed", {
+                bubbles: true,
+                composed: true
+              })
+            );
           }}
         >
           Commit entry
