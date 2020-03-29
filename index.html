@@ -1,32 +1,35 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <meta name="Description" content="Put your description here." />
+    <base href="/" />
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="Description" content="Put your description here.">
-  <base href="/holochain-playground/">
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: sans-serif;
+        background-color: #ededed;
+      }
 
-  <style>
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      width: 100%;
-      font-family: sans-serif;
-      background-color: #ededed;
-    }
+      h3 {
+        margin-block-start: 0;
+      }
+    </style>
+    <title>holochain-playground</title>
+  </head>
 
-  </style>
-  <title>holochain-playground</title>
+  <body>
+    <holochain-playground></holochain-playground>
 
-</head>
-
-<body>
-  <holochain-playground></holochain-playground>
-
-  <script type="module" src="./src/index.ts"></script>
-<script type="text/javascript" src="main.js"></script></body>
-
+    <script type="module" src="./src/index.ts"></script>
+  <script type="text/javascript" src="main.js"></script></body>
 </html>
