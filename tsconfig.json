@@ -9,7 +9,7 @@
     "strict": false,
     "sourceMap": true,
     "experimentalDecorators": true,
-    "noImplicitThis": true,
+    "noImplicitThis": false,
     "alwaysStrict": true,
     "esModuleInterop": true
   },

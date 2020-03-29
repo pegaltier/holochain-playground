@@ -9,7 +9,8 @@ module.exports = {
       "lit-element": path.resolve("./node_modules/lit-element"),
       "lit-html": path.resolve("./node_modules/lit-html")
     },
-    extensions: [".ts", ".tsx", ".js", ".json", ".css", ".scss", ".html"]
+    extensions: [".ts", ".tsx", ".js", ".json", ".css", ".scss", ".html"],
+    mainFields: ["main", "module"]
   },
   entry: ["babel-polyfill", "./src/index.ts"],
   devServer: {

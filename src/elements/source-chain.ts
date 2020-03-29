@@ -3,7 +3,7 @@ import { sourceChainNodes } from "../processors/graph";
 import cytoscape from "cytoscape";
 import dagre from "cytoscape-dagre";
 import { Cell } from "../types/cell";
-import { sharedStyles } from './sharedStyles';
+import { sharedStyles } from "./sharedStyles";
 cytoscape.use(dagre); // register extension
 
 export class SourceChain extends LitElement {
@@ -58,7 +58,8 @@ export class SourceChain extends LitElement {
     super.updated(changedValues);
 
     if (changedValues.has("cell")) {
-     this.setupGraph();
+      this.setupGraph();
+      this.selectedEntry = undefined;
     }
 
     if (changedValues.has("selectedEntry")) {
