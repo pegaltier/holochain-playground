@@ -6,18 +6,15 @@ export interface EntryContent<E extends EntryType, P> {
 export type Entry =
   | EntryContent<EntryType.DNA, string>
   | EntryContent<EntryType.AgentId, string>
-  | EntryContent<
-      EntryType.CreateEntry,
-      { entry: any; replaces: string | undefined }
-    >
-  | EntryContent<EntryType.DeleteEntry, string>
+  | EntryContent<EntryType.CreateEntry, any>
+  | EntryContent<EntryType.DeleteEntry, { deletedEntry: string }>
   | EntryContent<
       EntryType.LinkAdd,
       { base: string; target: string; tag: string }
     >
   | EntryContent<
       EntryType.LinkRemove,
-      { base: string; target: string; timestamp: number }
+      { base: string; target: string; tag: string; timestamp: number }
     >;
 
 export enum EntryType {

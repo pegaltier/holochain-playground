@@ -38,10 +38,10 @@ export class ConductorDetail extends LitElement {
     return html`
       <h3>DHT Shard</h3>
       <div class="column">
-        ${this.cell().DHTOpTransforms.map(
-          transform =>
+        ${Object.entries(this.cell().DHTOpTransforms).map(
+          ([dhtOpHash, dhtOp]) =>
             html`
-              ${transform}
+              ${dhtOpHash}
             `
         )}
       </div>
