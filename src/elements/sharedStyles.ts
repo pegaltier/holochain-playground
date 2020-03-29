@@ -12,4 +12,8 @@ export const sharedStyles = css`
   .fill {
     flex: 1;
   }
+  .center-content {
+    align-items: center;
+    justify-content: center;
+  }
 `;

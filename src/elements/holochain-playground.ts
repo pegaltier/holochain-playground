@@ -117,7 +117,11 @@ export class HolochainPlayground extends LitElement {
                   .selectedDNA=${this.selectedDNA}
                 ></conductor-detail>
               `
-            : html``}
+            : html`
+                <div class="row fill center-content">
+                  <span>Select node to see its state</span>
+                </div>
+              `}
         </div>
       </div>
     `;

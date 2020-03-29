@@ -12,13 +12,13 @@ import { hash, distance } from "../processors/hash";
 import { Header } from "./header";
 import { NetworkMessageType, NetworkMessage, SendMessage } from "./network";
 
-const AGENT_HEADERS = "AGENT_HEADERS";
-const CRUDStatus = "CRUDStatus";
-const REPLACES = "REPLACES";
-const REPLACED_BY = "REPLACED_BY";
-const DELETED_BY = "DELETED_BY";
-const HEADERS = "HEADERS";
-const LINKS_TO = "LINKS_TO";
+export const AGENT_HEADERS = "AGENT_HEADERS";
+export const CRUDStatus = "CRUDStatus";
+export const REPLACES = "REPLACES";
+export const REPLACED_BY = "REPLACED_BY";
+export const DELETED_BY = "DELETED_BY";
+export const HEADERS = "HEADERS";
+export const LINKS_TO = "LINKS_TO";
 
 export class Cell {
   sourceChain: string[] = [];

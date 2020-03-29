@@ -18,12 +18,12 @@ export type Entry =
     >;
 
 export enum EntryType {
-  DNA,
-  AgentId,
-  CreateEntry,
-  DeleteEntry,
-  LinkAdd,
-  LinkRemove,
-  CapTokenGrant,
-  CapTokenClaim
+  DNA = "DNA",
+  AgentId = "AgentId",
+  CreateEntry = "CreateEntry",
+  DeleteEntry = "DeleteEntry",
+  LinkAdd = "LinkAdd",
+  LinkRemove = "LinkRemove",
+  CapTokenGrant = "CapTokenGrant",
+  CapTokenClaim = "CapTokenClaim"
 }

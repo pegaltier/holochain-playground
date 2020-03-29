@@ -3,13 +3,13 @@ import { Entry, EntryType, EntryContent } from "./entry";
 import { hash } from "../processors/hash";
 
 export enum DHTOpType {
-  StoreHeader,
-  StoreEntry,
-  RegisterAgentActivity,
-  RegisterUpdatedTo,
-  RegisterDeletedBy,
-  RegisterAddLink,
-  RegisterRemoveLink
+  StoreHeader = "StoreHeader",
+  StoreEntry = "StoreEntry",
+  RegisterAgentActivity = "RegisterAgentActivity",
+  RegisterUpdatedTo = "RegisterUpdatedTo",
+  RegisterDeletedBy = "RegisterDeletedBy",
+  RegisterAddLink = "RegisterAddLink",
+  RegisterRemoveLink = "RegisterRemoveLink"
 }
 
 export const DHT_SORT_PRIORITY = [
