@@ -1,4 +1,4 @@
-interface EntryContent<E extends EntryType, P> {
+export interface EntryContent<E extends EntryType, P> {
   type: E;
   payload: P;
 }
@@ -6,9 +6,11 @@ interface EntryContent<E extends EntryType, P> {
 export type Entry =
   | EntryContent<EntryType.DNA, string>
   | EntryContent<EntryType.AgentId, string>
-  | EntryContent<EntryType.CreateEntry, any>
+  | EntryContent<
+      EntryType.CreateEntry,
+      { entry: any; replaces: string | undefined }
+    >
   | EntryContent<EntryType.DeleteEntry, string>
-  | EntryContent<EntryType.UpdateEntry, { newEntry: any; replaces: string }>
   | EntryContent<
       EntryType.LinkAdd,
       { base: string; target: string; tag: string }
@@ -22,7 +24,6 @@ export enum EntryType {
   DNA,
   AgentId,
   CreateEntry,
-  UpdateEntry,
   DeleteEntry,
   LinkAdd,
   LinkRemove,
