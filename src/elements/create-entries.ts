@@ -38,6 +38,8 @@ export class CreateEntries extends LitElement {
   addFromAddress: TextFieldBase;
   @query("#add-to-address")
   addToAddress: TextFieldBase;
+  @query("#add-type")
+  addType: TextFieldBase;
   @query("#add-tag")
   addTag: TextFieldBase;
 
@@ -45,6 +47,8 @@ export class CreateEntries extends LitElement {
   removeFromAddress: TextFieldBase;
   @query("#remove-to-address")
   removeToAddress: TextFieldBase;
+  @query("#remove-type")
+  removeType: TextFieldBase;
   @query("#remove-timestamp")
   removeTimestamp: TextFieldBase;
 
@@ -53,12 +57,12 @@ export class CreateEntries extends LitElement {
 
   setEntryValidity(element) {
     element.validityTransform = (newValue, nativeValidity) => {
+      this.requestUpdate();
       if (newValue.length === 46) {
         const entry = this.cell.getEntry(newValue);
         if (entry) return { valid: true };
       }
       element.setCustomValidity("Entry does not exist");
-
       return {
         valid: false
       };
@@ -153,7 +157,7 @@ export class CreateEntries extends LitElement {
               (this.entryToCreate = {
                 entry: {
                   type: EntryType.CreateEntry,
-                  payload: this.createTextarea.value
+                  payload: JSON.parse(this.createTextarea.value)
                 }
               })}
           ></mwc-button>
@@ -199,7 +203,7 @@ export class CreateEntries extends LitElement {
               (this.entryToCreate = {
                 entry: {
                   type: EntryType.CreateEntry,
-                  payload: this.createTextarea.value
+                  payload: JSON.parse(this.updateTextarea.value)
                 },
                 replaces: this.updateAddress.value
               })}
@@ -267,6 +271,12 @@ export class CreateEntries extends LitElement {
           ></mwc-textfield>
           <mwc-textfield
             outlined
+            id="add-type"
+            label="Link type"
+            style="width: 35em"
+          ></mwc-textfield>
+          <mwc-textfield
+            outlined
             id="add-tag"
             label="Tag of the link"
             style="width: 35em"
@@ -287,6 +297,7 @@ export class CreateEntries extends LitElement {
                   payload: {
                     base: this.addFromAddress.value,
                     target: this.addToAddress.value,
+                    type: this.addType.value,
                     tag: this.addTag.value
                   }
                 }
@@ -310,13 +321,25 @@ export class CreateEntries extends LitElement {
             id="remove-from-address"
             label="Base entry address"
             style="width: 35em"
-            @input=${() => this.removeFromAddress.reportValidity()}
+            @input=${() => {
+              this.removeFromAddress.reportValidity();
+              this.requestUpdate();
+            }}
           ></mwc-textfield>
           <mwc-textfield
             outlined
             id="remove-to-address"
             label="Target entry address"
-            @input=${() => this.removeToAddress.reportValidity()}
+            @input=${() => {
+              this.removeToAddress.reportValidity();
+              this.requestUpdate();
+            }}
+            style="width: 35em"
+          ></mwc-textfield>
+          <mwc-textfield
+            outlined
+            id="remove-type"
+            label="Link type"
             style="width: 35em"
           ></mwc-textfield>
           <mwc-textfield
@@ -341,6 +364,7 @@ export class CreateEntries extends LitElement {
                   payload: {
                     base: this.removeFromAddress.value,
                     target: this.removeToAddress.value,
+                    type: this.removeType.value,
                     timestamp: parseInt(this.removeTimestamp.value)
                   }
                 }
@@ -390,13 +414,16 @@ export class CreateEntries extends LitElement {
               this.entryToCreate.entry,
               this.entryToCreate.replaces
             );
-            this.entryToCreate = undefined;
             this.dispatchEvent(
               new CustomEvent("entry-committed", {
+                detail: {
+                  entryId: hash(this.entryToCreate.entry)
+                },
                 bubbles: true,
                 composed: true
               })
             );
+            this.entryToCreate = undefined;
           }}
         >
           Commit entry

@@ -18,7 +18,7 @@ export class SourceChain extends LitElement {
       sharedStyles,
       css`
         :host {
-          display: flex;DeleteEntry
+          display: flex;
         }
       `
     ];
@@ -101,7 +101,13 @@ export class SourceChain extends LitElement {
         ${this.selectedEntry
           ? html`
               <div class="column">
-                <h4>${this.selectedEntry}</h4>
+                <strong style="margin-bottom: 8px;">
+                  ${this.cell.CAS[this.selectedEntry].entryAddress
+                    ? "Header"
+                    : "Entry"}
+                  Id
+                </strong>
+                <span style="margin-bottom: 16px;">${this.selectedEntry}</span>
                 <json-viewer id="selected-entry"></json-viewer>
               </div>
             `

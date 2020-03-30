@@ -48,7 +48,8 @@ export class DHTShard extends LitElement {
   render() {
     return html`
       <div class="column">
-        <json-viewer id="dht-shard"></json-viewer>
+        <span><strong>Entries with associated metadata, and agent ids with all their headers</strong></span>
+        <json-viewer id="dht-shard" style="margin-top: 16px;"></json-viewer>
       </div>
     `;
   }

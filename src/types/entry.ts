@@ -10,11 +10,11 @@ export type Entry =
   | EntryContent<EntryType.RemoveEntry, { deletedEntry: string }>
   | EntryContent<
       EntryType.LinkAdd,
-      { base: string; target: string; tag: string }
+      { base: string; target: string; type: string; tag: string }
     >
   | EntryContent<
       EntryType.LinkRemove,
-      { base: string; target: string; timestamp: number }
+      { base: string; target: string; type: string; timestamp: number }
     >;
 
 export enum EntryType {

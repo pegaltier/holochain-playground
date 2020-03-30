@@ -63,14 +63,6 @@ export class Cell {
 
       const peers = this.getNPeersClosestTo(this.redundancyFactor, hood);
 
-      console.log(
-        hood,
-        [this.agentId, ...this.peers],
-        peers,
-        [this.agentId, ...this.peers].map(p => distance(hood, p)),
-        peers.map(p => distance(hood, p))
-      );
-
       for (const peer of peers) {
         this.sendMessage(this.dna, this.agentId, peer, message);
       }
@@ -95,15 +87,11 @@ export class Cell {
       return compareBigInts(distanceA, ditsanceB);
     });
 
-    const neighbors = sortedPeers.slice(0, this.redundancyFactor + 2);
+    const neighbors = sortedPeers.slice(0, this.redundancyFactor + 1);
 
     const half = Math.floor(this.peers.length / 2);
 
-    return [
-      ...neighbors,
-      sortedPeers[half + 1],
-      sortedPeers[this.peers.length - 1]
-    ];
+    return [...neighbors, sortedPeers[this.peers.length - 1]];
   }
 
   getNPeersClosestTo(n: number, hash: string): string[] {
@@ -217,6 +205,7 @@ export class Cell {
           this.CASMeta[dhtOp.entry.payload.base][LINKS_TO].push({
             target: dhtOp.entry.payload.target,
             tag: dhtOp.entry.payload.tag,
+            type: dhtOp.entry.payload.type,
             timestamp: dhtOp.header.timestamp
           });
           break;
@@ -227,6 +216,7 @@ export class Cell {
             LINKS_TO
           ] as Array<any>).findIndex(
             link =>
+              link.type === dhtOp.entry.payload.type &&
               link.target === dhtOp.entry.payload.target &&
               link.timestamp === dhtOp.entry.payload.timestamp
           );
