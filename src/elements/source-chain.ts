@@ -33,12 +33,19 @@ export class SourceChain extends LitElement {
         node {
           width: 30px;
           height: 30px;
+          background-color: grey;
         }
 
         edge {
           width: 4;
           target-arrow-shape: triangle;
           curve-style: bezier;
+        }
+
+        .selected {
+          border-width: 4px;
+          border-color: black;
+          border-style: solid;
         }
 
         .DNA {
@@ -66,6 +73,9 @@ export class SourceChain extends LitElement {
     });
     cy.on("tap", "node", event => {
       this.selectedEntry = event.target.id();
+      cy.filter("node").removeClass("selected");
+      cy.getElementById(this.selectedEntry).addClass("selected");
+
       this.dispatchEvent(
         new CustomEvent("entry-selected", {
           bubbles: true,

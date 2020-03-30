@@ -63,10 +63,17 @@ export class HolochainPlayground extends LitElement {
       layout: { name: "circle" },
       style: `
         node {
+          background-color: grey;
           label: data(label);
           font-size: 20px;
           width: 30px;
           height: 30px;
+        }
+
+        .selected {
+          border-width: 4px;
+          border-color: black;
+          border-style: solid;
         }
 
         .highlighted {
@@ -84,6 +91,11 @@ export class HolochainPlayground extends LitElement {
       this.selectedConductor = this.playground.conductors.find(conductor =>
         conductor.agentIds.find(agentId => agentId === evt.target.id())
       );
+      this.getActiveCells().forEach(cell =>
+        cy.getElementById(cell.agentId).removeClass("selected")
+      );
+      cy.getElementById(evt.target.id()).addClass("selected");
+
       this.highlightNodesWithEntry(cy, null);
     });
 
