@@ -4,6 +4,7 @@ import cytoscape from "cytoscape";
 import dagre from "cytoscape-dagre";
 import { Cell } from "../types/cell";
 import { sharedStyles } from "./sharedStyles";
+import { Entry } from "../types/entry";
 cytoscape.use(dagre); // register extension
 
 export class SourceChain extends LitElement {
@@ -86,6 +87,10 @@ export class SourceChain extends LitElement {
     });
   }
 
+  getSelectedEntry(): any | undefined {
+    return this.cell.CAS[this.selectedEntry];
+  }
+
   updated(changedValues: PropertyValues) {
     super.updated(changedValues);
 
@@ -108,13 +113,11 @@ export class SourceChain extends LitElement {
     return html`
       <div class="row fill">
         <div style="width: 400px; height: 99%" id="source-chain-graph"></div>
-        ${this.selectedEntry
+        ${this.getSelectedEntry()
           ? html`
               <div class="column">
                 <strong style="margin-bottom: 8px;">
-                  ${this.cell.CAS[this.selectedEntry].entryAddress
-                    ? "Header"
-                    : "Entry"}
+                  ${this.getSelectedEntry().entryAddress ? "Header" : "Entry"}
                   Id
                 </strong>
                 <span style="margin-bottom: 16px;">${this.selectedEntry}</span>
