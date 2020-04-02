@@ -54,9 +54,10 @@ export type DHTOp =
 
 export function entryToDHTOps(entry: Entry, header: Header): DHTOp[] {
   let additionalDHTOps: DHTOp[] = [];
+  
   switch (entry.type) {
     case EntryType.CreateEntry:
-      if (entry.payload.replaces) {
+      if (header.replacedEntryAddress) {
         additionalDHTOps = [
           {
             header,
