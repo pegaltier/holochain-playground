@@ -185,10 +185,10 @@ export class Cell {
           this.CASMeta[entryHash][HEADERS].push(headerHash);
           break;
         case DHTOpType.RegisterUpdatedTo:
-          this.initDHTShardForEntry(entryHash);
-          this.CASMeta[entryHash][CRUDStatus] = "Replaced";
+          this.initDHTShardForEntry(header.replacedEntryAddress);
+          this.CASMeta[header.replacedEntryAddress][CRUDStatus] = "Replaced";
 
-          this.CASMeta[entryHash][REPLACED_BY] = hash(dhtOp.entry.newEntry);
+          this.CASMeta[header.replacedEntryAddress][REPLACED_BY] = hash(dhtOp.entry.newEntry);
 
           break;
         case DHTOpType.RegisterDeletedBy:
