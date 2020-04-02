@@ -155,6 +155,7 @@ export class Cell {
       const header = dhtOp.header;
       const headerHash = hash(header);
       this.CAS[headerHash] = header;
+      const entryHash = dhtOp.entry ? hash(dhtOp.entry) : undefined;
 
       switch (dhtOp.type) {
         case DHTOpType.RegisterAgentActivity:
@@ -167,7 +168,6 @@ export class Cell {
           this.CASMeta[dhtOp.header.agentId][AGENT_HEADERS].push(headerHash);
           break;
         case DHTOpType.StoreEntry:
-          const entryHash = hash(dhtOp.entry);
           this.CAS[entryHash] = dhtOp.entry;
 
           this.initDHTShardForEntry(entryHash);
