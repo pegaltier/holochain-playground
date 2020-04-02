@@ -186,17 +186,34 @@ export class Cell {
           break;
         case DHTOpType.RegisterUpdatedTo:
           this.initDHTShardForEntry(header.replacedEntryAddress);
-          this.CASMeta[header.replacedEntryAddress][CRUDStatus] = "Replaced";
 
-          this.CASMeta[header.replacedEntryAddress][REPLACED_BY] = hash(dhtOp.entry.newEntry);
+          if (
+            !this.CASMeta[header.replacedEntryAddress][CRUDStatus] ||
+            this.CASMeta[header.replacedEntryAddress][CRUDStatus] !== "Replaced"
+          ) {
+            this.CASMeta[header.replacedEntryAddress][CRUDStatus] = "Replaced";
+            this.CASMeta[header.replacedEntryAddress][REPLACED_BY] = [
+              hash(dhtOp.entry.newEntry)
+            ];
+          } else {
+            const newEntryHash = hash(dhtOp.entry.newEntry);
+            let replacedBy = this.CASMeta[header.replacedEntryAddress][
+              REPLACED_BY
+            ];
+            this.CASMeta[header.replacedEntryAddress][CRUDStatus] = "CONFLICT";
+            replacedBy.push(newEntryHash);
+            this.CASMeta[header.replacedEntryAddress][REPLACED_BY] = replacedBy;
+          }
 
           break;
         case DHTOpType.RegisterDeletedBy:
-          this.initDHTShardForEntry(entryHash);
+          const deletedEntryHash = dhtOp.entry.payload.deletedEntry;
 
-          this.CASMeta[entryHash][CRUDStatus] = "Deleted";
-          this.CASMeta[entryHash][REPLACED_BY] = undefined;
-          this.CASMeta[entryHash][DELETED_BY] = dhtOp.entry;
+          this.initDHTShardForEntry(deletedEntryHash);
+
+          this.CASMeta[deletedEntryHash][CRUDStatus] = "Deleted";
+          this.CASMeta[deletedEntryHash][REPLACED_BY] = undefined;
+          this.CASMeta[deletedEntryHash][DELETED_BY] = header.entryAddress;
 
           break;
         case DHTOpType.RegisterAddLink:
