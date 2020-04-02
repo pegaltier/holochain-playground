@@ -63,7 +63,7 @@ export function entryToDHTOps(entry: Entry, header: Header): DHTOp[] {
             header,
             type: DHTOpType.RegisterUpdatedTo,
             entry: {
-              newEntry: entry.payload.entry
+              newEntry: entry
             }
           }
         ];
