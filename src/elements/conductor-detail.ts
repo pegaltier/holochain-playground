@@ -1,12 +1,4 @@
-import {
-  LitElement,
-  property,
-  html,
-  TemplateResult,
-  css,
-  PropertyValues,
-  query
-} from "lit-element";
+import { LitElement, property, html, css, query } from "lit-element";
 import "@authentic/mwc-card";
 import "@material/mwc-select";
 import "@material/mwc-list";
@@ -14,38 +6,22 @@ import "@material/mwc-list/mwc-list-item";
 import "@alenaksu/json-viewer";
 import "@material/mwc-tab-bar";
 import "@material/mwc-tab";
-
-import { Conductor } from "../types/conductor";
-import { Cell } from "../types/cell";
-import { sharedStyles } from "./sharedStyles";
 import { Dialog } from "@material/mwc-dialog";
 
-export class ConductorDetail extends LitElement {
-  @property()
-  conductor: Conductor;
+import { sharedStyles } from "./sharedStyles";
+import { Playground } from "../state/playground";
+import { pinToBoard } from "../blackboard/blackboard-mixin";
 
-  @property()
-  selectedDNA: string;
-
-  @property()
-  selectedEntry: string | undefined = undefined;
-
-  @property()
+export class ConductorDetail extends pinToBoard<Playground>(LitElement) {
+  @property({ type: Number })
   selectedTabIndex: number = 0;
 
   @query("#conductor-help")
   conductorHelp: Dialog;
 
-  cell(): Cell {
-    return this.conductor.cells[this.selectedDNA];
-  }
-
   firstUpdated() {
     this.addEventListener("entry-committed", (e: CustomEvent) => {
       this.selectedTabIndex = 0;
-      setTimeout(() => {
-        this.selectedEntry = e.detail.entryId;
-      });
     });
   }
 
@@ -60,7 +36,7 @@ export class ConductorDetail extends LitElement {
         mwc-card {
           padding: 16px;
         }
-      `
+      `,
     ];
   }
 
@@ -69,7 +45,7 @@ export class ConductorDetail extends LitElement {
       <mwc-dialog id="conductor-help" heading="Node Help">
         <span>
           You've selected the node or conductor with Agent ID
-          ${this.cell().agentId}. Here you can see its internal state:
+          ${this.state.activeAgentId}. Here you can see its internal state:
           <ul>
             <li>
               <strong>Source Chain</strong>: entries that this node has
@@ -112,7 +88,7 @@ export class ConductorDetail extends LitElement {
           <div class="row center-content" style="padding: 16px">
             <div class="column" style="flex: 1;">
               <h3>Agent Id</h3>
-              <span>${this.cell().agentId}</span>
+              <span>${this.state.activeAgentId}</span>
             </div>
             <mwc-icon-button
               icon="help_outline"
@@ -121,7 +97,7 @@ export class ConductorDetail extends LitElement {
           </div>
           <div class="column fill">
             <mwc-tab-bar
-              @MDCTabBar:activated=${e =>
+              @MDCTabBar:activated=${(e) =>
                 (this.selectedTabIndex = e.detail.index)}
               .activeIndex=${this.selectedTabIndex}
             >
@@ -131,20 +107,10 @@ export class ConductorDetail extends LitElement {
             </mwc-tab-bar>
             <div style="padding: 16px;" class="column fill">
               ${this.selectedTabIndex === 0
-                ? html`
-                    <source-chain
-                      class="fill"
-                      .selectedEntry=${this.selectedEntry}
-                      .cell=${this.cell()}
-                    ></source-chain>
-                  `
+                ? html` <source-chain class="fill"></source-chain> `
                 : this.selectedTabIndex === 1
-                ? html`
-                    <dht-shard .cell=${this.cell()}></dht-shard>
-                  `
-                : html`
-                    <create-entries .cell=${this.cell()}></create-entries>
-                  `}
+                ? html` <dht-shard></dht-shard> `
+                : html` <create-entries></create-entries> `}
             </div>
           </div>
         </div>

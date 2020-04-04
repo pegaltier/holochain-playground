@@ -4,10 +4,11 @@ import cytoscape from "cytoscape";
 import dagre from "cytoscape-dagre";
 import { Cell } from "../types/cell";
 import { sharedStyles } from "./sharedStyles";
-import { Entry } from "../types/entry";
+import { Playground } from '../state/playground';
+import { pinToBoard } from '../blackboard/blackboard-mixin';
 cytoscape.use(dagre); // register extension
 
-export class SourceChain extends LitElement {
+export class SourceChain extends pinToBoard<Playground>(LitElement) {
   @property()
   cell: Cell;
 
@@ -21,7 +22,7 @@ export class SourceChain extends LitElement {
         :host {
           display: flex;
         }
-      `
+      `,
     ];
   }
 
@@ -70,9 +71,9 @@ export class SourceChain extends LitElement {
         .LinkRemove {
           background-color: purple;
         }
-      `
+      `,
     });
-    cy.on("tap", "node", event => {
+    cy.on("tap", "node", (event) => {
       this.selectedEntry = event.target.id();
       cy.filter("node").removeClass("selected");
       cy.getElementById(this.selectedEntry).addClass("selected");
@@ -81,7 +82,7 @@ export class SourceChain extends LitElement {
         new CustomEvent("entry-selected", {
           bubbles: true,
           composed: true,
-          detail: { entryId: this.selectedEntry }
+          detail: { entryId: this.selectedEntry },
         })
       );
     });

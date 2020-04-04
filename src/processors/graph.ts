@@ -1,4 +1,3 @@
-import { Playground } from "../types/playground";
 import { Cell } from "../types/cell";
 import { arrayToInt, compareBigInts, distance } from "./hash";
 import { Header } from "../types/header";

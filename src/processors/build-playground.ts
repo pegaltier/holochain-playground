@@ -1,6 +1,6 @@
-import { Playground } from "../types/playground";
 import { Conductor } from "../types/conductor";
 import { SendMessage, NetworkMessage } from "../types/network";
+import { Playground } from "../state/playground";
 
 export function buildPlayground(
   dna: string,
@@ -16,8 +16,8 @@ export function buildPlayground(
     toAgentId: string,
     message: NetworkMessage
   ) => {
-    const conductor = conductors.find(c =>
-      c.agentIds.find(a => a === toAgentId)
+    const conductor = conductors.find((c) =>
+      c.agentIds.find((a) => a === toAgentId)
     );
     if (conductor)
       return conductor.inboundNetworkMessage(dna, fromAgentId, message);
@@ -28,12 +28,12 @@ export function buildPlayground(
     conductors.push(conductor);
   }
 
-  const peers = conductors.map(c => c.agentIds[0]);
+  const peers = conductors.map((c) => c.agentIds[0]);
 
   for (const conductor of conductors) {
     conductor.installDna(
       dna,
-      peers.filter(p => p !== conductor.agentIds[0])
+      peers.filter((p) => p !== conductor.agentIds[0])
     );
   }
 
@@ -42,7 +42,10 @@ export function buildPlayground(
   }
 
   return {
+    activeDNA: dna,
+    activeAgentId: undefined,
+    activeEntryId: undefined,
     conductors,
-    redundancyFactor
+    redundancyFactor,
   };
 }
