@@ -9,10 +9,11 @@
     "strict": false,
     "sourceMap": true,
     "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "noImplicitThis": false,
     "alwaysStrict": true,
     "esModuleInterop": true
   },
-  "include": ["**/*.js", "node_modules/@open-wc/**/*.js", "rollup.config.ts"],
+  "include": ["src"],
   "exclude": ["node_modules/!(@open-wc)"]
 }

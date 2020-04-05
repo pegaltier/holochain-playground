@@ -6,8 +6,6 @@ import "@material/mwc-dialog";
 import { Dialog } from "@material/mwc-dialog";
 
 import { sharedStyles } from "./sharedStyles";
-import { pinToBoard } from "../blackboard/blackboard-mixin";
-import { Playground } from "../state/playground";
 import {
   selectGlobalDHTOps,
   selectUniqueDHTOps,
@@ -22,13 +20,20 @@ export class HolochainPlayground extends LitElement {
   @query("#dna-help")
   dnaHelp: Dialog;
 
-  @property()
+  @property({ type: Object })
   playground = buildPlayground(hash("dna1"), 10);
 
   blackboard = new Blackboard(this.playground);
 
   static get styles() {
     return sharedStyles;
+  }
+
+  firstUpdated() {
+    this.blackboard.subscribe((state) => {
+      console.log(state);
+      this.requestUpdate();
+    });
   }
 
   renderDNACard() {
@@ -39,10 +44,10 @@ export class HolochainPlayground extends LitElement {
             <h3>DNA: ${this.blackboard.state.activeDNA}</h3>
             <div class="row">
               <span>
-                Nodes: ${selectCellCount(this.blackboard.state)}, Redundancy factor:
-                ${this.blackboard.state.redundancyFactor}, Global DHT Ops:
-                ${selectGlobalDHTOps(this.blackboard.state)}, Unique DHT Ops:
-                ${selectUniqueDHTOps(this.blackboard.state)}</span
+                Nodes: ${selectCellCount(this.blackboard.state)}, Redundancy
+                factor: ${this.blackboard.state.redundancyFactor}, Global DHT
+                Ops: ${selectGlobalDHTOps(this.blackboard.state)}, Unique DHT
+                Ops: ${selectUniqueDHTOps(this.blackboard.state)}</span
               >
             </div>
           </div>
@@ -67,10 +72,12 @@ export class HolochainPlayground extends LitElement {
           >, with ID: ${this.blackboard.state.activeDNA}.
           <br />
           <br />
-          Having a redundancy factor of ${this.blackboard.state.redundancyFactor}, it will
+          Having a redundancy factor of
+          ${this.blackboard.state.redundancyFactor}, it will
           <strong
-            >replicate every DHT Op in the ${this.blackboard.state.redundancyFactor} nodes
-            that are closest to its neighborhood</strong
+            >replicate every DHT Op in the
+            ${this.blackboard.state.redundancyFactor} nodes that are closest to
+            its neighborhood</strong
           >.
           <br />
           <br />

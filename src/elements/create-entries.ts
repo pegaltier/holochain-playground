@@ -14,12 +14,12 @@ import { EntryType, Entry } from "../types/entry";
 import "@alenaksu/json-viewer";
 import { entryToDHTOps, neighborhood } from "../types/dht-op";
 import { hash } from "../processors/hash";
+import { Playground } from "../state/playground";
+import { pinToBoard } from "../blackboard/blackboard-mixin";
+import { selectActiveCell } from "../state/selectors";
 
-export class CreateEntries extends LitElement {
-  @property()
-  cell: Cell;
-
-  @property()
+export class CreateEntries extends pinToBoard<Playground>(LitElement) {
+  @property({ attribute: false })
   selectedEntryType: number = 0;
 
   @query("#create-entry-textarea")
@@ -52,19 +52,19 @@ export class CreateEntries extends LitElement {
   @query("#remove-timestamp")
   removeTimestamp: TextFieldBase;
 
-  @property()
+  @property({ attribute: false })
   entryToCreate: { entry: Entry; replaces?: string } | undefined = undefined;
 
   setEntryValidity(element) {
     element.validityTransform = (newValue, nativeValidity) => {
       this.requestUpdate();
       if (newValue.length === 46) {
-        const entry = this.cell.getEntry(newValue);
+        const entry = selectActiveCell(this.state).getEntry(newValue);
         if (entry) return { valid: true };
       }
       element.setCustomValidity("Entry does not exist");
       return {
-        valid: false
+        valid: false,
       };
     };
   }
@@ -78,7 +78,7 @@ export class CreateEntries extends LitElement {
 
         this.requestUpdate();
         return {
-          valid: true
+          valid: true,
         };
       } catch (e) {
         element.setCustomValidity("Bad JSON input");
@@ -105,8 +105,8 @@ export class CreateEntries extends LitElement {
       this.addFromAddress,
       this.addToAddress,
       this.removeFromAddress,
-      this.removeToAddress
-    ].forEach(ele => ele.setCustomValidity(""));
+      this.removeToAddress,
+    ].forEach((ele) => ele.setCustomValidity(""));
   }
 
   static get styles() {
@@ -126,7 +126,7 @@ export class CreateEntries extends LitElement {
         mwc-textarea {
           width: 100%;
         }
-      `
+      `,
     ];
   }
 
@@ -157,8 +157,8 @@ export class CreateEntries extends LitElement {
               (this.entryToCreate = {
                 entry: {
                   type: EntryType.CreateEntry,
-                  payload: JSON.parse(this.createTextarea.value)
-                }
+                  payload: JSON.parse(this.createTextarea.value),
+                },
               })}
           ></mwc-button>
         </div>
@@ -203,9 +203,9 @@ export class CreateEntries extends LitElement {
               (this.entryToCreate = {
                 entry: {
                   type: EntryType.CreateEntry,
-                  payload: JSON.parse(this.updateTextarea.value)
+                  payload: JSON.parse(this.updateTextarea.value),
                 },
-                replaces: this.updateAddress.value
+                replaces: this.updateAddress.value,
               })}
           ></mwc-button>
         </div>
@@ -238,8 +238,8 @@ export class CreateEntries extends LitElement {
               (this.entryToCreate = {
                 entry: {
                   type: EntryType.RemoveEntry,
-                  payload: { deletedEntry: this.removeAddress.value }
-                }
+                  payload: { deletedEntry: this.removeAddress.value },
+                },
               })}
           ></mwc-button>
         </div>
@@ -298,9 +298,9 @@ export class CreateEntries extends LitElement {
                     base: this.addFromAddress.value,
                     target: this.addToAddress.value,
                     type: this.addType.value,
-                    tag: this.addTag.value
-                  }
-                }
+                    tag: this.addTag.value,
+                  },
+                },
               })}
           ></mwc-button>
         </div>
@@ -365,9 +365,9 @@ export class CreateEntries extends LitElement {
                     base: this.removeFromAddress.value,
                     target: this.removeToAddress.value,
                     type: this.removeType.value,
-                    timestamp: parseInt(this.removeTimestamp.value)
-                  }
-                }
+                    timestamp: parseInt(this.removeTimestamp.value),
+                  },
+                },
               })}
           ></mwc-button>
         </div>
@@ -376,17 +376,16 @@ export class CreateEntries extends LitElement {
   }
 
   buildDHTOpsTransforms() {
-    const dhtOps = entryToDHTOps(
-      this.entryToCreate.entry,
-      this.cell.newHeader(
-        hash(this.entryToCreate.entry),
-        this.entryToCreate.replaces
-      )
+    const newHeader = selectActiveCell(this.state).newHeader(
+      hash(this.entryToCreate.entry),
+      this.entryToCreate.replaces
     );
 
-    return dhtOps.map(dhtOp => ({
+    const dhtOps = entryToDHTOps(this.entryToCreate.entry, newHeader);
+
+    return dhtOps.map((dhtOp) => ({
       operation: dhtOp,
-      neighborhood: neighborhood(dhtOp)
+      neighborhood: neighborhood(dhtOp),
     }));
   }
 
@@ -410,17 +409,17 @@ export class CreateEntries extends LitElement {
           slot="primaryAction"
           dialogAction="confirm"
           @click=${() => {
-            this.cell.createEntry(
+            selectActiveCell(this.state).createEntry(
               this.entryToCreate.entry,
               this.entryToCreate.replaces
             );
             this.dispatchEvent(
               new CustomEvent("entry-committed", {
                 detail: {
-                  entryId: hash(this.entryToCreate.entry)
+                  entryId: hash(this.entryToCreate.entry),
                 },
                 bubbles: true,
-                composed: true
+                composed: true,
               })
             );
             this.entryToCreate = undefined;

@@ -16,6 +16,8 @@ export class DHTGraph extends pinToBoard<Playground>(LitElement) {
   @query("#dht-help")
   dhtHelp: Dialog;
 
+  cy;
+
   static get styles() {
     return sharedStyles;
   }
@@ -23,10 +25,9 @@ export class DHTGraph extends pinToBoard<Playground>(LitElement) {
   async firstUpdated() {
     const nodes = dnaNodes(selectActiveCells(this.state));
 
-    const cy = cytoscape({
+    this.cy = cytoscape({
       container: this.shadowRoot.getElementById("graph"),
       boxSelectionEnabled: true,
-
       elements: nodes,
       layout: { name: "circle" },
       style: `
@@ -55,28 +56,22 @@ export class DHTGraph extends pinToBoard<Playground>(LitElement) {
           `,
     });
 
-    cy.on("tap", "node", (evt) => {
+    this.cy.on("tap", "node", (evt) => {
       this.blackboard.update("activeAgentId", evt.target.id());
-      selectActiveCells(this.state).forEach((cell) =>
-        cy.getElementById(cell.agentId).removeClass("selected")
-      );
-      cy.getElementById(evt.target.id()).addClass("selected");
-
-      this.highlightNodesWithEntry(cy, null);
     });
 
     this.addEventListener("entry-committed", (e: CustomEvent) => {
       this.requestUpdate();
-      this.highlightNodesWithEntry(cy, e.detail.entryId);
+      this.highlightNodesWithEntry(e.detail.entryId);
     });
-    this.addEventListener("entry-selected", (e: CustomEvent) =>
-      this.highlightNodesWithEntry(cy, e.detail.entryId)
-    );
+    this.blackboard
+      .select("activeEntryId")
+      .subscribe((entryId) => this.highlightNodesWithEntry(entryId));
   }
 
-  highlightNodesWithEntry(cy, entryId: string) {
+  highlightNodesWithEntry(entryId: string) {
     selectActiveCells(this.state).forEach((cell) =>
-      cy.getElementById(cell.agentId).removeClass("highlighted")
+      this.cy.getElementById(cell.agentId).removeClass("highlighted")
     );
     const cells = selectActiveCells(this.state).filter(
       (c) =>
@@ -88,8 +83,20 @@ export class DHTGraph extends pinToBoard<Playground>(LitElement) {
     );
 
     for (const cell of cells) {
-      cy.getElementById(cell.agentId).addClass("highlighted");
+      this.cy.getElementById(cell.agentId).addClass("highlighted");
     }
+  }
+
+  updated(changedValues) {
+    console.log(this.state)
+    super.updated(changedValues);
+
+    selectActiveCells(this.state).forEach((cell) =>
+      this.cy.getElementById(cell.agentId).removeClass("selected")
+    );
+    this.cy.getElementById(this.state.activeAgentId).addClass("selected");
+
+    this.highlightNodesWithEntry(null);
   }
 
   renderDHTHelp() {

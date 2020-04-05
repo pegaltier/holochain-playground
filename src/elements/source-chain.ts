@@ -2,19 +2,14 @@ import { LitElement, property, html, PropertyValues, css } from "lit-element";
 import { sourceChainNodes } from "../processors/graph";
 import cytoscape from "cytoscape";
 import dagre from "cytoscape-dagre";
-import { Cell } from "../types/cell";
+
 import { sharedStyles } from "./sharedStyles";
-import { Playground } from '../state/playground';
-import { pinToBoard } from '../blackboard/blackboard-mixin';
+import { Playground } from "../state/playground";
+import { pinToBoard } from "../blackboard/blackboard-mixin";
+import { selectActiveCell, selectActiveEntry } from "../state/selectors";
 cytoscape.use(dagre); // register extension
 
 export class SourceChain extends pinToBoard<Playground>(LitElement) {
-  @property()
-  cell: Cell;
-
-  @property()
-  selectedEntry: string | undefined = undefined;
-
   static get styles() {
     return [
       sharedStyles,
@@ -26,10 +21,11 @@ export class SourceChain extends pinToBoard<Playground>(LitElement) {
     ];
   }
 
-  setupGraph() {
-    const cy = cytoscape({
+  cy: cytoscape.Core;
+
+  firstUpdated() {
+    this.cy = cytoscape({
       container: this.shadowRoot.getElementById("source-chain-graph"),
-      elements: sourceChainNodes(this.cell),
       layout: { name: "dagre" },
       style: `
         node {
@@ -73,56 +69,42 @@ export class SourceChain extends pinToBoard<Playground>(LitElement) {
         }
       `,
     });
-    cy.on("tap", "node", (event) => {
-      this.selectedEntry = event.target.id();
-      cy.filter("node").removeClass("selected");
-      cy.getElementById(this.selectedEntry).addClass("selected");
-
-      this.dispatchEvent(
-        new CustomEvent("entry-selected", {
-          bubbles: true,
-          composed: true,
-          detail: { entryId: this.selectedEntry },
-        })
-      );
+    this.cy.on("tap", "node", (event) => {
+      const selectedEntryId = event.target.id();
+      this.blackboard.update("activeEntryId", selectedEntryId);
     });
-  }
-
-  getSelectedEntry(): any | undefined {
-    return this.cell.CAS[this.selectedEntry];
   }
 
   updated(changedValues: PropertyValues) {
     super.updated(changedValues);
 
-    if (changedValues.has("cell")) {
-      this.setupGraph();
-      this.selectedEntry = undefined;
-    }
-
-    if (changedValues.has("selectedEntry")) {
-      const entryViewer = this.shadowRoot.getElementById("selected-entry");
-      if (entryViewer) {
-        (entryViewer as any).data = this.selectedEntry
-          ? this.cell.CAS[this.selectedEntry]
-          : undefined;
-      }
-    }
+    this.cy.remove("nodes");
+    this.cy.add(sourceChainNodes(selectActiveCell(this.state)));
+    this.cy.layout({ name: "dagre" }).run();
+    console.log(this.cy);
+    this.cy.filter("node").removeClass("selected");
+    this.cy.getElementById(this.state.activeEntryId).addClass("selected");
   }
 
   render() {
     return html`
       <div class="row fill">
         <div style="width: 400px; height: 99%" id="source-chain-graph"></div>
-        ${this.getSelectedEntry()
+        ${selectActiveEntry(this.state)
           ? html`
               <div class="column">
                 <strong style="margin-bottom: 8px;">
-                  ${this.getSelectedEntry().entryAddress ? "Header" : "Entry"}
+                  ${selectActiveEntry(this.state).entryAddress
+                    ? "Header"
+                    : "Entry"}
                   Id
                 </strong>
-                <span style="margin-bottom: 16px;">${this.selectedEntry}</span>
-                <json-viewer id="selected-entry"></json-viewer>
+                <span style="margin-bottom: 16px;"
+                  >${this.state.activeEntryId}</span
+                >
+                <json-viewer
+                  .data=${selectActiveEntry(this.state)}
+                ></json-viewer>
               </div>
             `
           : html`

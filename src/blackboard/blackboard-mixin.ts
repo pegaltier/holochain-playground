@@ -32,6 +32,7 @@ export const pinToBoard = <
       this.dispatchEvent(e);
       this.blackboard = e["blackboard"];
       this.blackboard.subscribe((state) => {
+        console.log(state)
         if (((this as unknown) as LitElement).requestUpdate) {
           ((this as unknown) as LitElement).requestUpdate();
         }

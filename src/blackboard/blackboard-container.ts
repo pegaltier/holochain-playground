@@ -2,7 +2,7 @@ import { LitElement, property, html } from "lit-element";
 import { Blackboard } from "./blackboard";
 
 export class BlackboardContainer extends LitElement {
-  @property({ type: Blackboard })
+  @property({ type: Object })
   blackboard: Blackboard<any>;
 
   connectedCallback() {
