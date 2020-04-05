@@ -5,7 +5,7 @@ import { Dialog } from "@material/mwc-dialog";
 import { dnaNodes } from "../processors/graph";
 import { pinToBoard } from "../blackboard/blackboard-mixin";
 import { Playground } from "../state/playground";
-import { selectActiveCells } from "../state/selectors";
+import { selectActiveCells, selectHoldingCells } from "../state/selectors";
 import { DHTOp, DHTOpType } from "../types/dht-op";
 import { sharedStyles } from "./sharedStyles";
 
@@ -73,14 +73,7 @@ export class DHTGraph extends pinToBoard<Playground>(LitElement) {
     selectActiveCells(this.state).forEach((cell) =>
       this.cy.getElementById(cell.agentId).removeClass("highlighted")
     );
-    const cells = selectActiveCells(this.state).filter(
-      (c) =>
-        !!Object.values(c.DHTOpTransforms).find(
-          (dhtOp: DHTOp) =>
-            dhtOp.type === DHTOpType.StoreEntry &&
-            dhtOp.header.entryAddress === entryId
-        )
-    );
+    const cells = selectHoldingCells(this.state)(entryId);
 
     for (const cell of cells) {
       this.cy.getElementById(cell.agentId).addClass("highlighted");
@@ -88,15 +81,12 @@ export class DHTGraph extends pinToBoard<Playground>(LitElement) {
   }
 
   updated(changedValues) {
-    console.log(this.state)
     super.updated(changedValues);
 
     selectActiveCells(this.state).forEach((cell) =>
       this.cy.getElementById(cell.agentId).removeClass("selected")
     );
     this.cy.getElementById(this.state.activeAgentId).addClass("selected");
-
-    this.highlightNodesWithEntry(null);
   }
 
   renderDHTHelp() {

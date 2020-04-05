@@ -1,4 +1,5 @@
 import { Playground } from "./playground";
+import { DHTOp, DHTOpType } from "../types/dht-op";
 
 export const selectCellCount = (state: Playground) =>
   selectActiveCells(state).length;
@@ -15,6 +16,16 @@ export const selectGlobalDHTOps = (state: Playground) => {
 
   return dhtOps;
 };
+
+export const selectHoldingCells = (state: Playground) => (entryId: string) =>
+  selectActiveCells(state).filter(
+    (c) =>
+      !!Object.values(c.DHTOpTransforms).find(
+        (dhtOp: DHTOp) =>
+          dhtOp.type === DHTOpType.StoreEntry &&
+          dhtOp.header.entryAddress === entryId
+      )
+  );
 
 export const selectActiveConductor = (state: Playground) =>
   state.activeAgentId
@@ -46,7 +57,9 @@ export const selectActiveEntry = (state: Playground) => {
   if (!(state.activeDNA && state.activeEntryId)) return undefined;
   for (const conductor of state.conductors) {
     const entry = conductor.cells[state.activeDNA].CAS[state.activeEntryId];
-    return entry;
+    if (entry) {
+      return entry;
+    }
   }
   return undefined;
 };

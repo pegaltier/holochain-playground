@@ -78,10 +78,9 @@ export class SourceChain extends pinToBoard<Playground>(LitElement) {
   updated(changedValues: PropertyValues) {
     super.updated(changedValues);
 
-    this.cy.remove("nodes");
     this.cy.add(sourceChainNodes(selectActiveCell(this.state)));
     this.cy.layout({ name: "dagre" }).run();
-    console.log(this.cy);
+
     this.cy.filter("node").removeClass("selected");
     this.cy.getElementById(this.state.activeEntryId).addClass("selected");
   }

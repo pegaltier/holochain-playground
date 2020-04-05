@@ -408,27 +408,31 @@ export class CreateEntries extends pinToBoard<Playground>(LitElement) {
         <mwc-button
           slot="primaryAction"
           dialogAction="confirm"
-          @click=${() => {
-            selectActiveCell(this.state).createEntry(
-              this.entryToCreate.entry,
-              this.entryToCreate.replaces
-            );
-            this.dispatchEvent(
-              new CustomEvent("entry-committed", {
-                detail: {
-                  entryId: hash(this.entryToCreate.entry),
-                },
-                bubbles: true,
-                composed: true,
-              })
-            );
-            this.entryToCreate = undefined;
-          }}
+          @click=${() => this.createEntry()}
         >
           Commit entry
         </mwc-button>
       </mwc-dialog>
     `;
+  }
+
+  createEntry() {
+    selectActiveCell(this.state).createEntry(
+      this.entryToCreate.entry,
+      this.entryToCreate.replaces
+    );
+    const entryId = hash(this.entryToCreate.entry);
+    this.dispatchEvent(
+      new CustomEvent("entry-committed", {
+        detail: {
+          entryId,
+        },
+        bubbles: true,
+        composed: true,
+      })
+    );
+    this.blackboard.update("activeEntryId", entryId);
+    this.entryToCreate = undefined;
   }
 
   render() {

@@ -30,10 +30,7 @@ export class HolochainPlayground extends LitElement {
   }
 
   firstUpdated() {
-    this.blackboard.subscribe((state) => {
-      console.log(state);
-      this.requestUpdate();
-    });
+    this.blackboard.subscribe((state) => this.requestUpdate());
   }
 
   renderDNACard() {
