@@ -6,16 +6,26 @@ import "@material/mwc-dialog";
 import "@material/mwc-switch";
 import "@material/mwc-formfield";
 import "@material/mwc-top-app-bar-fixed";
+import "@material/mwc-menu";
+import "@material/mwc-list/mwc-list-item";
 
 import { sharedStyles } from "./sharedStyles";
 import { buildPlayground } from "../processors/build-playground";
 import { hash } from "../processors/hash";
 import { Blackboard } from "../blackboard/blackboard";
 import { downloadFile, fileToPlayground } from "../processors/files";
+import {
+  selectCellCount,
+  selectGlobalDHTOps,
+  selectUniqueDHTOps,
+} from "../state/selectors";
 
 export class HolochainPlayground extends LitElement {
   @query("#file-upload")
   fileUpload: HTMLInputElement;
+
+  @query("#stats")
+  stats: any;
 
   @property({ type: Object })
   playground = buildPlayground(hash("dna1"), 10);
@@ -127,6 +137,36 @@ export class HolochainPlayground extends LitElement {
                 @change=${() => this.toggleMode()}
               ></mwc-switch>
             </mwc-formfield>
+          </div>
+
+          <div slot="actionItems" style="position: relative;">
+            <mwc-menu
+              id="stats"
+              style="pointer-events: none; position: absolute; top: 40px;"
+            >
+              <mwc-list-item
+                >Nodes: ${selectCellCount(this.blackboard.state)}</mwc-list-item
+              >
+              <mwc-list-item
+                >Redundancy factor:
+                ${this.blackboard.state.redundancyFactor}</mwc-list-item
+              >
+              <mwc-list-item
+                >Global DHT Ops:
+                ${selectGlobalDHTOps(this.blackboard.state)}</mwc-list-item
+              >
+              <mwc-list-item
+                >Unique DHT Ops:
+                ${selectUniqueDHTOps(this.blackboard.state)}</mwc-list-item
+              >
+            </mwc-menu>
+
+            <mwc-button
+              label="DHT Stats"
+              icon="equalizer"
+              style="margin-right: 18px;"
+              @click=${() => (this.stats.open = true)}
+            ></mwc-button>
           </div>
           <mwc-button
             slot="actionItems"
