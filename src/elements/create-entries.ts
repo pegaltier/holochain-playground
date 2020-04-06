@@ -117,6 +117,9 @@ export class CreateEntries extends pinToBoard<Playground>(LitElement) {
     return [
       sharedStyles,
       css`
+        :host {
+          display: flex;
+        }
         hr {
           width: 100%;
           opacity: 0.3;
@@ -449,7 +452,7 @@ export class CreateEntries extends pinToBoard<Playground>(LitElement) {
 
   render() {
     return html`
-      <div class="row">
+      <div class="row fill center-content">
         ${this.entryToCreate ? this.renderCommitDialog() : html``}
         <div class="column" style="margin-right: 16px;">
           <mwc-formfield label="Create Entry">

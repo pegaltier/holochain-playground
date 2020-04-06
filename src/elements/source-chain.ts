@@ -89,9 +89,9 @@ export class SourceChain extends pinToBoard<Playground>(LitElement) {
   render() {
     return html`
       <div class="row fill">
-        <div style="width: 400px; height: 99%" id="source-chain-graph"></div>
+        <div style="width: 400px; height: 95%" id="source-chain-graph"></div>
 
-        <entry-detail></entry-detail>
+        <entry-detail style="flex: 1"></entry-detail>
       </div>
     `;
   }

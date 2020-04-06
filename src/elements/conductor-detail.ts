@@ -110,7 +110,7 @@ export class ConductorDetail extends pinToBoard<Playground>(LitElement) {
                 ? html` <source-chain class="fill"></source-chain> `
                 : this.selectedTabIndex === 1
                 ? html` <dht-shard></dht-shard> `
-                : html` <create-entries></create-entries> `}
+                : html` <create-entries class="fill"></create-entries> `}
             </div>
           </div>
         </div>

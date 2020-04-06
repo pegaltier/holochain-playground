@@ -72,18 +72,16 @@ export class DHTGraph extends pinToBoard<Playground>(LitElement) {
       this.requestUpdate();
       this.highlightNodesWithEntry(e.detail.entryId);
     });
-    this.blackboard
-      .select("activeEntryId")
-      .subscribe((entryId) => this.highlightNodesWithEntry(entryId));
   }
 
   highlightNodesWithEntry(entryId: string) {
     selectActiveCells(this.state).forEach((cell) =>
-      this.cy.getElementById(cell.agentId).removeClass("highlighted")
+    this.cy.getElementById(cell.agentId).removeClass("highlighted")
     );
     const cells = selectHoldingCells(this.state)(entryId);
-
+    
     for (const cell of cells) {
+      console.log(this.cy.getElementById(cell.agentId))
       this.cy.getElementById(cell.agentId).addClass("highlighted");
     }
   }
@@ -99,6 +97,8 @@ export class DHTGraph extends pinToBoard<Playground>(LitElement) {
       this.cy.getElementById(cell.agentId).removeClass("selected")
     );
     this.cy.getElementById(this.state.activeAgentId).addClass("selected");
+
+    this.highlightNodesWithEntry(this.state.activeEntryId)
   }
 
   renderDHTHelp() {
