@@ -27,6 +27,8 @@ export class SourceChain extends pinToBoard<Playground>(LitElement) {
     this.cy = cytoscape({
       container: this.shadowRoot.getElementById("source-chain-graph"),
       layout: { name: "dagre" },
+      autoungrabify: true,
+      userZoomingEnabled: false,    
       style: `
         node {
           width: 30px;
@@ -73,6 +75,7 @@ export class SourceChain extends pinToBoard<Playground>(LitElement) {
       const selectedEntryId = event.target.id();
       this.blackboard.update("activeEntryId", selectedEntryId);
     });
+    this.requestUpdate();
   }
 
   updated(changedValues: PropertyValues) {
@@ -83,6 +86,7 @@ export class SourceChain extends pinToBoard<Playground>(LitElement) {
     this.cy.layout({ name: "dagre" }).run();
 
     this.cy.filter("node").removeClass("selected");
+
     this.cy.getElementById(this.state.activeEntryId).addClass("selected");
   }
 

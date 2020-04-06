@@ -65,7 +65,7 @@ export function sourceChainNodes(cell: Cell) {
   return nodes;
 }
 
-export function allEntries(cells: Cell[]) {
+export function allEntries(cells: Cell[], showAgentIds: boolean) {
   const entries: Dictionary<Entry> = {};
   const metadata: Dictionary<EntryMetadata> = {};
 
@@ -125,7 +125,7 @@ export function allEntries(cells: Cell[]) {
           id: `${key}->${link.target}`,
           source: key,
           target: link.target,
-          label: `${link.type},${link.tag}`,
+          label: `Type: ${link.type}, Tag: ${link.tag}`,
         },
         classes: ["explicit"],
       });
@@ -148,6 +148,20 @@ export function allEntries(cells: Cell[]) {
 
     if (entry.DELETED_BY) {
       entryNodes.find((node) => node.data.id === key).classes.push("deleted");
+    }
+  }
+
+  if (!showAgentIds) {
+    for (const [key, entry] of Object.entries(entries)) {
+      if (entry.type === EntryType.AgentId) {
+        const links = linksEdges.filter(
+          (edge) => edge.data.source === key || edge.data.target === key
+        );
+        if (links.length === 0) {
+          const index = entryNodes.findIndex((node) => node.data.id === key);
+          entryNodes.splice(index, 1);
+        }
+      }
     }
   }
 

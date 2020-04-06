@@ -1,23 +1,29 @@
 import { pinToBoard } from "../blackboard/blackboard-mixin";
 import { Playground } from "../state/playground";
-import { LitElement, html, css } from "lit-element";
+import { LitElement, html, property, css } from "lit-element";
 import cytoscape from "cytoscape";
-import klay from "cytoscape-klay";
+import cola from "cytoscape-cola";
+import "@material/mwc-checkbox";
 import { allEntries } from "../processors/graph";
 import { selectActiveCells } from "../state/selectors";
 import { sharedStyles } from "./sharedStyles";
 
-cytoscape.use(klay);
+cytoscape.use(cola);
 
 export class EntryGraph extends pinToBoard<Playground>(LitElement) {
+  @property({ attribute: false })
+  showAgentsIds: boolean = true;
+
   cy;
 
   firstUpdated() {
     this.cy = cytoscape({
       container: this.shadowRoot.getElementById("entry-graph"),
-      elements: allEntries(selectActiveCells(this.state)),
       boxSelectionEnabled: false,
-      layout: { name: "klay" },
+      autoungrabify: true,
+      userZoomingEnabled: false,
+
+      layout: { name: "cola" },
       style: `
               node {
                 background-color: grey;
@@ -92,8 +98,7 @@ export class EntryGraph extends pinToBoard<Playground>(LitElement) {
       const selectedEntryId = event.target.id();
       this.blackboard.update("activeEntryId", selectedEntryId);
     });
-
-
+    setTimeout(() => this.cy.layout({ name: "cola" }).run());
   }
 
   updated(changedValues) {
@@ -101,10 +106,9 @@ export class EntryGraph extends pinToBoard<Playground>(LitElement) {
 
     this.cy.remove("nodes");
     this.cy.remove("edges");
-    this.cy.add(allEntries(selectActiveCells(this.state)));
-    this.cy
-      .layout({ name: "klay", options: { klay: { edgeSpacingFactor: 20 } } })
-      .run();
+
+    this.cy.add(allEntries(selectActiveCells(this.state), this.showAgentsIds));
+    this.cy.layout({ name: "cola" }).run();
 
     this.cy.filter("node").removeClass("selected");
     this.cy.getElementById(this.state.activeEntryId).addClass("selected");
@@ -125,6 +129,15 @@ export class EntryGraph extends pinToBoard<Playground>(LitElement) {
     return html`
       <mwc-card style="width: auto;" class="fill">
         <div id="entry-graph" class="fill"></div>
+
+        <div class="row" style="align-items: end">
+          <mwc-formfield label="Show all AgentId entries">
+            <mwc-checkbox
+              checked
+              @change=${() => (this.showAgentsIds = !this.showAgentsIds)}
+            ></mwc-checkbox
+          ></mwc-formfield>
+        </div>
       </mwc-card>
     `;
   }

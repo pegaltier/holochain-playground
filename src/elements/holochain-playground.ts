@@ -70,6 +70,36 @@ export class HolochainPlayground extends LitElement {
     );
   }
 
+  toggleMode() {
+    this.technicalMode = !this.technicalMode;
+    if (this.technicalMode) {
+      if (this.blackboard.state.activeEntryId) {
+        const entryId = this.blackboard.state.activeEntryId;
+        const activeDNA = this.blackboard.state.activeDNA;
+        const conductor = this.blackboard.state.conductors.find((c) => {
+          const cell = c.cells[activeDNA];
+          const entryHeaders =
+            cell.CAS[entryId] &&
+            cell.CASMeta[entryId] &&
+            cell.CASMeta[entryId].HEADERS;
+          const headerIds = cell.sourceChain;
+          
+          return (
+            entryHeaders &&
+            headerIds.find((sourceChainHeaderId) =>
+              entryHeaders.includes(sourceChainHeaderId)
+            )
+          );
+        });
+
+        this.blackboard.update(
+          "activeAgentId",
+          conductor.cells[this.blackboard.state.activeDNA].agentId
+        );
+      }
+    }
+  }
+
   render() {
     return html`
       <blackboard-container .blackboard=${this.blackboard} class="fill column">
@@ -91,7 +121,7 @@ export class HolochainPlayground extends LitElement {
             >
               <mwc-switch
                 .checked=${this.technicalMode}
-                @change=${() => (this.technicalMode = !this.technicalMode)}
+                @change=${() => this.toggleMode()}
               ></mwc-switch>
             </mwc-formfield>
           </div>

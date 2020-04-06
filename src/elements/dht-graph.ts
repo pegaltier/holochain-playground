@@ -36,6 +36,8 @@ export class DHTGraph extends pinToBoard<Playground>(LitElement) {
       container: this.shadowRoot.getElementById("graph"),
       boxSelectionEnabled: false,
       elements: nodes,
+      autoungrabify: true,
+      userZoomingEnabled: false,
       layout: { name: "circle" },
       style: `
             node {
@@ -81,7 +83,6 @@ export class DHTGraph extends pinToBoard<Playground>(LitElement) {
     const cells = selectHoldingCells(this.state)(entryId);
     
     for (const cell of cells) {
-      console.log(this.cy.getElementById(cell.agentId))
       this.cy.getElementById(cell.agentId).addClass("highlighted");
     }
   }
