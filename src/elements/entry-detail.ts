@@ -1,10 +1,18 @@
-import { LitElement, html } from "lit-element";
+import { LitElement, html, property } from "lit-element";
 
 import { pinToBoard } from "../blackboard/blackboard-mixin";
 import { Playground } from "../state/playground";
-import { selectActiveEntry } from '../state/selectors';
+import { sharedStyles } from "./sharedStyles";
+import { selectActiveEntry, selectEntryMetadata } from "../state/selectors";
 
 export class EntryDetail extends pinToBoard<Playground>(LitElement) {
+  @property({ type: Boolean })
+  withMetadata = false;
+
+  static get styles() {
+    return sharedStyles;
+  }
+
   render() {
     return html`
       ${selectActiveEntry(this.state)
@@ -20,6 +28,14 @@ export class EntryDetail extends pinToBoard<Playground>(LitElement) {
                 >${this.state.activeEntryId}</span
               >
               <json-viewer .data=${selectActiveEntry(this.state)}></json-viewer>
+              ${this.withMetadata
+                ? html` <span style="margin: 16px 0; font-weight: bold;">Metadata</span>
+                    <json-viewer
+                      .data=${selectEntryMetadata(this.state)(
+                        this.state.activeEntryId
+                      )}
+                    ></json-viewer>`
+                : html``}
             </div>
           `
         : html`

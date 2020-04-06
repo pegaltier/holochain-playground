@@ -22,13 +22,13 @@ export class DesignerMode extends pinToBoard<Playground>(LitElement) {
   render() {
     return html`
       <div class="row fill">
-        <entry-graph class="fill padding" style="padding: 16px;"></entry-graph>
-        <div class="column fill">
+        <entry-graph class="fill padding" style="flex: 20; padding: 16px;"></entry-graph>
+        <div class="column" style="flex: 16;">
           <mwc-card style="width: auto;" class="padding fill center-content">
             <create-entries class="padding"></create-entries>
           </mwc-card>
           <mwc-card style="width: auto;" class="padding fill">
-            <entry-detail class="padding"></entry-detail>
+            <entry-detail class="padding" withMetadata></entry-detail>
           </mwc-card>
         </div>
       </div>

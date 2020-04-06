@@ -21,24 +21,23 @@ export class EntryGraph extends pinToBoard<Playground>(LitElement) {
       style: `
               node {
                 background-color: grey;
-                label: data(label);
-                font-size: 8px;
+                font-size: 6px;
                 width: 15px;
                 height: 15px;
               }
       
               edge {
                 label: data(label);
-                font-size: 8px;
-                width: 4;
+                width: 2;
                 target-arrow-shape: triangle;
                 curve-style: bezier;
               }
-
+              
               edge[label] {
+                font-size: 4px;
                 text-rotation: autorotate;
                 text-margin-x: 0px;
-                text-margin-y: 0px;        
+                text-margin-y: -5px;
                 text-valign: top;
                 text-halign: center;        
               }
@@ -93,6 +92,8 @@ export class EntryGraph extends pinToBoard<Playground>(LitElement) {
       const selectedEntryId = event.target.id();
       this.blackboard.update("activeEntryId", selectedEntryId);
     });
+
+
   }
 
   updated(changedValues) {
@@ -101,7 +102,9 @@ export class EntryGraph extends pinToBoard<Playground>(LitElement) {
     this.cy.remove("nodes");
     this.cy.remove("edges");
     this.cy.add(allEntries(selectActiveCells(this.state)));
-    this.cy.layout({ name: "klay" }).run();
+    this.cy
+      .layout({ name: "klay", options: { klay: { edgeSpacingFactor: 20 } } })
+      .run();
 
     this.cy.filter("node").removeClass("selected");
     this.cy.getElementById(this.state.activeEntryId).addClass("selected");

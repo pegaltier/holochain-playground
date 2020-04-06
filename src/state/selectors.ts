@@ -53,6 +53,17 @@ export const selectUniqueDHTOps = (state: Playground) => {
   return Object.keys(globalDHTOps).length;
 };
 
+export const selectEntryMetadata = (state: Playground) => (entryId: string) => {
+  if (!state.activeDNA) return undefined;
+  for (const conductor of state.conductors) {
+    const entry = conductor.cells[state.activeDNA].CASMeta[entryId];
+    if (entry) {
+      return entry;
+    }
+  }
+  return undefined;
+};
+
 export const selectActiveEntry = (state: Playground) => {
   if (!state.activeEntryId) return undefined;
   return selectEntry(state)(state.activeEntryId);

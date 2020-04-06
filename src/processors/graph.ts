@@ -82,25 +82,40 @@ export function allEntries(cells: Cell[]) {
     }
   }
 
+  const typeToInt = (type: EntryType) =>
+    type === EntryType.CreateEntry ? 0 : 1;
+  const sortedEntries = Object.entries(entries).sort(
+    ([keyA, entryA], [keyB, entryB]) =>
+      typeToInt(entryA.type) - typeToInt(entryB.type)
+  );
+
   const linksEdges = [];
   const entryNodes = [];
 
-  for (const [key, entry] of Object.entries(entries)) {
+  for (const [key, entry] of sortedEntries) {
     entryNodes.push({
       data: { id: key, data: entry, label: `${key.substr(0, 6)}...` },
       classes: [entry.type] as string[],
     });
-    const implicitLinks = getImplicitLinks(Object.keys(entries), entry.payload);
 
-    for (const implicitLink of implicitLinks) {
-      linksEdges.push({
-        data: {
-          id: `${key}->${implicitLink}`,
-          source: key,
-          target: implicitLink,
-        },
-        classes: ["implicit"],
-      });
+    if (entry.type === EntryType.CreateEntry) {
+      const implicitLinks = getImplicitLinks(
+        Object.keys(entries),
+        entry.payload
+      );
+      console.log(implicitLinks, entries, entry.payload);
+
+      for (const implicitLink of implicitLinks) {
+        linksEdges.push({
+          data: {
+            id: `${key}->${implicitLink.target}`,
+            source: key,
+            target: implicitLink.target,
+            label: implicitLink.label,
+          },
+          classes: ["implicit"],
+        });
+      }
     }
   }
 
@@ -142,21 +157,33 @@ export function allEntries(cells: Cell[]) {
 
 export function getImplicitLinks(
   allEntryIds: string[],
-  payload: any
-): string[] {
-  for (const [key, value] of Object.entries(payload)) {
-    if (typeof value === "string") {
-      return allEntryIds.includes(value) ? [value] : [];
-    }
-    if (
-      Array.isArray(value) &&
-      value.length > 0 &&
-      typeof value[0] === "string"
-    ) {
-      return value.filter((v) => allEntryIds.includes(v));
-    }
-    if (typeof value === "object") {
-      return getImplicitLinks(allEntryIds, value);
-    }
+  value: any
+): Array<{ label: string; target: string }> {
+  if (typeof value === "string") {
+    return allEntryIds.includes(value)
+      ? [{ label: undefined, target: value }]
+      : [];
   }
+  if (
+    Array.isArray(value) &&
+    value.length > 0 &&
+    typeof value[0] === "string"
+  ) {
+    return value
+      .filter((v) => allEntryIds.includes(v))
+      .map((v) => ({ target: v, label: undefined }));
+  }
+  if (typeof value === "object") {
+    const values = Object.entries(value).map(([key, v]) => {
+      const implicitLinks = getImplicitLinks(allEntryIds, v);
+      for (const implicitLink of implicitLinks) {
+        if (!implicitLink.label) {
+          implicitLink.label = key;
+        }
+      }
+      return implicitLinks;
+    });
+    return [].concat(...values);
+  }
+  return [];
 }
