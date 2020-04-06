@@ -71,7 +71,6 @@ export function allEntries(cells: Cell[]) {
 
   for (const cell of cells) {
     for (const [key, entry] of Object.entries(cell.CASMeta)) {
-      console.log(cell.CAS[key]);
       if (
         cell.CAS[key] &&
         (cell.CAS[key].type === EntryType.CreateEntry ||

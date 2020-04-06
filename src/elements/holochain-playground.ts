@@ -1,4 +1,4 @@
-import { LitElement, html, query, property } from "lit-element";
+import { LitElement, html, css, property, query } from "lit-element";
 
 import "@material/mwc-icon-button";
 import "@material/mwc-button";
@@ -6,14 +6,17 @@ import "@material/mwc-dialog";
 import "@material/mwc-switch";
 import "@material/mwc-formfield";
 import "@material/mwc-top-app-bar-fixed";
-import { Dialog } from "@material/mwc-dialog";
 
 import { sharedStyles } from "./sharedStyles";
 import { buildPlayground } from "../processors/build-playground";
 import { hash } from "../processors/hash";
 import { Blackboard } from "../blackboard/blackboard";
+import { downloadFile, fileToPlayground } from "../processors/files";
 
 export class HolochainPlayground extends LitElement {
+  @query("#file-upload")
+  fileUpload: HTMLInputElement;
+
   @property({ type: Object })
   playground = buildPlayground(hash("dna1"), 10);
 
@@ -23,11 +26,46 @@ export class HolochainPlayground extends LitElement {
   blackboard = new Blackboard(this.playground);
 
   static get styles() {
-    return sharedStyles;
+    return [
+      sharedStyles,
+      css`
+        mwc-button {
+          color: white !important;
+        }
+      `,
+    ];
   }
 
   firstUpdated() {
     this.blackboard.subscribe(() => this.requestUpdate());
+  }
+
+  import() {
+    const file = this.fileUpload.files[0];
+
+    var reader = new FileReader();
+    reader.onload = (event) => {
+      const playground = JSON.parse(event.target.result as string);
+      this.blackboard.updateState(fileToPlayground(playground));
+    };
+    reader.readAsText(file);
+  }
+
+  export() {
+    const playground = this.blackboard.state;
+    for (const conductor of playground.conductors) {
+      for (const cell of Object.values(conductor.cells)) {
+        cell.conductor = undefined;
+      }
+    }
+    const blob = new Blob([JSON.stringify(playground)], {
+      type: "application/json",
+    });
+
+    downloadFile(
+      `holochain-playground-${Date.now().toLocaleString()}.json`,
+      blob
+    );
   }
 
   render() {
@@ -42,6 +80,16 @@ export class HolochainPlayground extends LitElement {
               @change=${() => (this.technicalMode = !this.technicalMode)}
             ></mwc-switch>
           </mwc-formfield>
+          <mwc-button
+            slot="actionItems"
+            label="Import"
+            @click=${() => this.fileUpload.click()}
+          ></mwc-button>
+          <mwc-button
+            slot="actionItems"
+            label="Export"
+            @click=${() => this.export()}
+          ></mwc-button>
         </mwc-top-app-bar-fixed>
         <div class="row fill">
           ${this.technicalMode
@@ -49,6 +97,13 @@ export class HolochainPlayground extends LitElement {
             : html` <designer-mode class="fill"></designer-mode> `}
         </div>
       </blackboard-container>
+      <input
+        type="file"
+        id="file-upload"
+        accept="application/json"
+        style="display:none"
+        @change=${() => this.import()}
+      />
     `;
   }
 }

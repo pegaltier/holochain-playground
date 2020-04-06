@@ -1,20 +1,35 @@
 import { Dictionary } from "./common";
-import { Cell } from "./cell";
+import { Cell, CellContents } from "./cell";
 import { hash } from "../processors/hash";
 import { SendMessage, NetworkMessage } from "./network";
+
+export interface ConductorContents {
+  agentIds: string[];
+  cells: Dictionary<CellContents>;
+  redundancyFactor: number;
+  seed: string;
+}
 
 export class Conductor {
   agentIds: string[];
   readonly cells: Dictionary<Cell> = {};
+  sendMessage: SendMessage;
 
   constructor(
-    protected sendMessage: SendMessage,
     protected redundancyFactor: number,
-    protected seed: string = Math.random()
-      .toString()
-      .substring(2)
+    protected seed: string = Math.random().toString().substring(2)
   ) {
     this.agentIds = [this.buildAgentId(0)];
+  }
+
+  static from(contents: ConductorContents) {
+    const conductor = new Conductor(contents.redundancyFactor, contents.seed);
+    conductor.agentIds = contents.agentIds;
+    for (const [key, cell] of Object.entries(contents.cells)) {
+      conductor.cells[key] = Cell.from(conductor, cell);
+    }
+
+    return conductor;
   }
 
   buildAgentId(index: number): string {
@@ -25,13 +40,7 @@ export class Conductor {
 
   installDna(dna: string, peers: string[]): void {
     const agentId = this.agentIds[0];
-    const cell = new Cell(
-      dna,
-      agentId,
-      this.sendMessage,
-      this.redundancyFactor,
-      peers
-    );
+    const cell = new Cell(this, dna, agentId, this.redundancyFactor, peers);
     this.cells[dna] = cell;
   }
 

@@ -11,6 +11,7 @@ import { Entry, EntryType } from "./entry";
 import { hash, distance, compareBigInts } from "../processors/hash";
 import { Header } from "./header";
 import { NetworkMessageType, NetworkMessage, SendMessage } from "./network";
+import { Conductor } from "./conductor";
 
 export const AGENT_HEADERS = "AGENT_HEADERS";
 export const CRUDStatus = "CRUDStatus";
@@ -34,6 +35,17 @@ export interface EntryMetadata {
   }>;
 }
 
+export interface CellContents {
+  dna: string;
+  agentId: string;
+  redundancyFactor: number;
+  peers: string[];
+  sourceChain: string[];
+  CAS: Dictionary<any>;
+  CASMeta: Dictionary<Dictionary<any>>; // For the moment only DHT shard
+  DHTOpTransforms: Dictionary<DHTOp>;
+}
+
 export class Cell {
   sourceChain: string[] = [];
   CAS: Dictionary<any> = {};
@@ -41,12 +53,27 @@ export class Cell {
   DHTOpTransforms: Dictionary<DHTOp> = {};
 
   constructor(
+    public conductor: Conductor,
     public dna: string,
     public agentId: string,
-    protected sendMessage: SendMessage,
     public redundancyFactor: number,
     public peers: string[]
   ) {}
+
+  static from(conductor: Conductor, contents: CellContents) {
+    const cell = new Cell(
+      conductor,
+      contents.dna,
+      contents.agentId,
+      contents.redundancyFactor,
+      contents.peers
+    );
+    cell.sourceChain = contents.sourceChain;
+    cell.CAS = contents.CAS;
+    cell.CASMeta = contents.CASMeta;
+    cell.DHTOpTransforms = contents.DHTOpTransforms;
+    return cell;
+  }
 
   init() {
     this.createEntry({ type: EntryType.DNA, payload: this.dna }, undefined);
@@ -78,7 +105,7 @@ export class Cell {
       const peers = this.getNPeersClosestTo(this.redundancyFactor, hood);
 
       for (const peer of peers) {
-        this.sendMessage(this.dna, this.agentId, peer, message);
+        this.conductor.sendMessage(this.dna, this.agentId, peer, message);
       }
     }
   }
@@ -91,7 +118,7 @@ export class Cell {
       payload: hash,
     };
 
-    return this.sendMessage(this.dna, this.agentId, peer[0], message);
+    return this.conductor.sendMessage(this.dna, this.agentId, peer[0], message);
   }
 
   getNeighbors(): string[] {

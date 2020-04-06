@@ -1,6 +1,7 @@
 import { Conductor } from "../types/conductor";
 import { SendMessage, NetworkMessage } from "../types/network";
 import { Playground } from "../state/playground";
+import { hookUpConductors } from "./message";
 
 export function buildPlayground(
   dna: string,
@@ -10,23 +11,12 @@ export function buildPlayground(
 
   const redundancyFactor = 3;
 
-  const sendMessage: SendMessage = (
-    dna: string,
-    fromAgentId: string,
-    toAgentId: string,
-    message: NetworkMessage
-  ) => {
-    const conductor = conductors.find((c) =>
-      c.agentIds.find((a) => a === toAgentId)
-    );
-    if (conductor)
-      return conductor.inboundNetworkMessage(dna, fromAgentId, message);
-  };
-
   for (let i = 0; i < numConductors; i++) {
-    const conductor = new Conductor(sendMessage, redundancyFactor);
+    const conductor = new Conductor(redundancyFactor);
     conductors.push(conductor);
   }
+
+  hookUpConductors(conductors);
 
   const peers = conductors.map((c) => c.agentIds[0]);
 

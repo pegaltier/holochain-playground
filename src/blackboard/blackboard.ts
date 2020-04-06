@@ -6,9 +6,13 @@ import { Dictionary } from "../types/common";
 export class Blackboard<S extends Dictionary<any>> {
   private subject: Subject<S>;
 
-  constructor(public state: S) {
+  constructor(protected _state: S) {
     this.subject = new Subject<S>();
-    this.subject.next(state);
+    this.subject.next(_state);
+  }
+
+  get state(): S {
+    return this._state;
   }
 
   subscribe(
@@ -31,7 +35,12 @@ export class Blackboard<S extends Dictionary<any>> {
   }
 
   update(key: keyof S, value: any): void {
-    this.state[key] = value;
-    this.subject.next(this.state);
+    this._state[key] = value;
+    this.subject.next(this._state);
+  }
+
+  updateState(state: S): void {
+    this._state = state;
+    this.subject.next(this._state);
   }
 }
