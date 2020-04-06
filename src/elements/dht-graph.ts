@@ -58,6 +58,7 @@ export class DHTGraph extends pinToBoard<Playground>(LitElement) {
 
     this.cy.on("tap", "node", (evt) => {
       this.blackboard.update("activeAgentId", evt.target.id());
+      this.blackboard.update("activeEntryId", null);
     });
 
     this.addEventListener("entry-committed", (e: CustomEvent) => {
