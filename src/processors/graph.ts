@@ -103,7 +103,6 @@ export function allEntries(cells: Cell[]) {
         Object.keys(entries),
         entry.payload
       );
-      console.log(implicitLinks, entries, entry.payload);
 
       for (const implicitLink of implicitLinks) {
         linksEdges.push({

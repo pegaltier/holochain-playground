@@ -1,4 +1,4 @@
-import { LitElement, html, query } from "lit-element";
+import { LitElement, html, query, css } from "lit-element";
 import cytoscape from "cytoscape";
 import { Dialog } from "@material/mwc-dialog";
 
@@ -19,7 +19,14 @@ export class DHTGraph extends pinToBoard<Playground>(LitElement) {
   cy;
 
   static get styles() {
-    return sharedStyles;
+    return [
+      sharedStyles,
+      css`
+        :host {
+          display: flex;
+        }
+      `,
+    ];
   }
 
   async firstUpdated() {
@@ -84,6 +91,10 @@ export class DHTGraph extends pinToBoard<Playground>(LitElement) {
   updated(changedValues) {
     super.updated(changedValues);
 
+    this.cy.remove("nodes");
+    this.cy.add(dnaNodes(selectActiveCells(this.state)));
+    this.cy.layout({ name: "circle" }).run();
+
     selectActiveCells(this.state).forEach((cell) =>
       this.cy.getElementById(cell.agentId).removeClass("selected")
     );
@@ -123,12 +134,14 @@ export class DHTGraph extends pinToBoard<Playground>(LitElement) {
 
   render() {
     return html`${this.renderDHTHelp()}
-      <div id="graph" style="height: 100%"></div>
+      <div class="fill" style="position: relative">
+        <div id="graph" style="height: 100%"></div>
 
-      <mwc-icon-button
-        style="position: fixed; right: 36px; top: 36px;"
-        icon="help_outline"
-        @click=${() => (this.dhtHelp.open = true)}
-      ></mwc-icon-button> `;
+        <mwc-icon-button
+          style="position: absolute; right: 36px; top: 36px;"
+          icon="help_outline"
+          @click=${() => (this.dhtHelp.open = true)}
+        ></mwc-icon-button>
+      </div>`;
   }
 }

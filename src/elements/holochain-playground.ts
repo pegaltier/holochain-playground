@@ -29,8 +29,10 @@ export class HolochainPlayground extends LitElement {
     return [
       sharedStyles,
       css`
-        mwc-button {
-          color: white !important;
+        mwc-button,
+        mwc-formfield,
+        mwc-switch {
+          --mdc-theme-primary: white;
         }
       `,
     ];
@@ -74,20 +76,36 @@ export class HolochainPlayground extends LitElement {
         <mwc-top-app-bar-fixed>
           <span slot="title">DNA: ${this.blackboard.state.activeDNA}</span>
 
-          <mwc-formfield label="Technical mode" slot="actionItems">
-            <mwc-switch
-              .checked=${this.technicalMode}
-              @change=${() => (this.technicalMode = !this.technicalMode)}
-            ></mwc-switch>
-          </mwc-formfield>
+          <div
+            class="row center-content"
+            slot="actionItems"
+            style="margin-right: 36px;"
+          >
+            <span style="font-size: 0.875rem; margin-right: 10px;"
+              >DESIGNER MODE</span
+            >
+
+            <mwc-formfield
+              label="TECHNICAL MODE"
+              style="--mdc-theme-text-primary-on-background: white;"
+            >
+              <mwc-switch
+                .checked=${this.technicalMode}
+                @change=${() => (this.technicalMode = !this.technicalMode)}
+              ></mwc-switch>
+            </mwc-formfield>
+          </div>
           <mwc-button
             slot="actionItems"
             label="Import"
+            icon="publish"
+            style="margin-right: 18px;"
             @click=${() => this.fileUpload.click()}
           ></mwc-button>
           <mwc-button
             slot="actionItems"
             label="Export"
+            icon="get_app"
             @click=${() => this.export()}
           ></mwc-button>
         </mwc-top-app-bar-fixed>
