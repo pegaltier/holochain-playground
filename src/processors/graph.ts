@@ -82,12 +82,27 @@ export function allEntries(cells: Cell[]) {
     }
   }
 
-  const entryNodes = Object.entries(entries).map(([key, entry]) => ({
-    data: { id: key, data: entry, label: `${key.substr(0, 6)}...` },
-    classes: [entry.type],
-  }));
-
   const linksEdges = [];
+  const entryNodes = [];
+
+  for (const [key, entry] of Object.entries(entries)) {
+    entryNodes.push({
+      data: { id: key, data: entry, label: `${key.substr(0, 6)}...` },
+      classes: [entry.type] as string[],
+    });
+    const implicitLinks = getImplicitLinks(Object.keys(entries), entry.payload);
+
+    for (const implicitLink of implicitLinks) {
+      linksEdges.push({
+        data: {
+          id: `${key}->${implicitLink}`,
+          source: key,
+          target: implicitLink,
+        },
+        classes: ["implicit"],
+      });
+    }
+  }
 
   for (const [key, entry] of Object.entries(metadata)) {
     for (const link of entry.LINKS_TO) {
@@ -101,7 +116,47 @@ export function allEntries(cells: Cell[]) {
         classes: ["explicit"],
       });
     }
+
+    if (entry.REPLACED_BY && entry.REPLACED_BY.length > 0) {
+      entryNodes.find((node) => node.data.id === key).classes.push("updated");
+      for (const replacedBy of entry.REPLACED_BY) {
+        linksEdges.push({
+          data: {
+            id: `${key}-replaced-by-${replacedBy}`,
+            source: key,
+            target: replacedBy,
+            label: "replaced by",
+          },
+          classes: ["update-link"],
+        });
+      }
+    }
+
+    if (entry.DELETED_BY) {
+      entryNodes.find((node) => node.data.id === key).classes.push("deleted");
+    }
   }
 
   return [...entryNodes, ...linksEdges];
+}
+
+export function getImplicitLinks(
+  allEntryIds: string[],
+  payload: any
+): string[] {
+  for (const [key, value] of Object.entries(payload)) {
+    if (typeof value === "string") {
+      return allEntryIds.includes(value) ? [value] : [];
+    }
+    if (
+      Array.isArray(value) &&
+      value.length > 0 &&
+      typeof value[0] === "string"
+    ) {
+      return value.filter((v) => allEntryIds.includes(v));
+    }
+    if (typeof value === "object") {
+      return getImplicitLinks(allEntryIds, value);
+    }
+  }
 }

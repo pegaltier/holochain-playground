@@ -29,10 +29,18 @@ export class EntryGraph extends pinToBoard<Playground>(LitElement) {
       
               edge {
                 label: data(label);
-                font-size: 10px;
+                font-size: 8px;
                 width: 4;
                 target-arrow-shape: triangle;
                 curve-style: bezier;
+              }
+
+              edge[label] {
+                text-rotation: autorotate;
+                text-margin-x: 0px;
+                text-margin-y: 0px;        
+                text-valign: top;
+                text-halign: center;        
               }
       
               .selected {
@@ -66,6 +74,17 @@ export class EntryGraph extends pinToBoard<Playground>(LitElement) {
               .implicit {
                 width: 1;
                 line-style: dotted;
+              }
+
+              .update-link {
+                width: 1;
+                line-style: dashed;
+              }
+              .updated {
+                opacity: 0.5;
+              }
+              .deleted {
+                opacity: 0.3;
               }
             `,
     });
