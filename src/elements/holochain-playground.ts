@@ -78,12 +78,15 @@ export class HolochainPlayground extends LitElement {
         const activeDNA = this.blackboard.state.activeDNA;
         const conductor = this.blackboard.state.conductors.find((c) => {
           const cell = c.cells[activeDNA];
+
           const entryHeaders =
             cell.CAS[entryId] &&
-            cell.CASMeta[entryId] &&
-            cell.CASMeta[entryId].HEADERS;
+            Object.entries(cell.CAS)
+              .filter(([key, header]) => header.entryAddress === entryId)
+              .map(([key, _]) => key);
+
           const headerIds = cell.sourceChain;
-          
+
           return (
             entryHeaders &&
             headerIds.find((sourceChainHeaderId) =>
