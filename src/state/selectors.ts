@@ -54,9 +54,14 @@ export const selectUniqueDHTOps = (state: Playground) => {
 };
 
 export const selectActiveEntry = (state: Playground) => {
-  if (!(state.activeDNA && state.activeEntryId)) return undefined;
+  if (!state.activeEntryId) return undefined;
+  return selectEntry(state)(state.activeEntryId);
+};
+
+export const selectEntry = (state: Playground) => (entryId: string) => {
+  if (!state.activeDNA) return undefined;
   for (const conductor of state.conductors) {
-    const entry = conductor.cells[state.activeDNA].CAS[state.activeEntryId];
+    const entry = conductor.cells[state.activeDNA].CAS[entryId];
     if (entry) {
       return entry;
     }

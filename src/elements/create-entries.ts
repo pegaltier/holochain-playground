@@ -16,7 +16,11 @@ import { entryToDHTOps, neighborhood } from "../types/dht-op";
 import { hash } from "../processors/hash";
 import { Playground } from "../state/playground";
 import { pinToBoard } from "../blackboard/blackboard-mixin";
-import { selectActiveCell } from "../state/selectors";
+import {
+  selectActiveCell,
+  selectEntry,
+  selectActiveCells,
+} from "../state/selectors";
 
 export class CreateEntries extends pinToBoard<Playground>(LitElement) {
   @property({ attribute: false })
@@ -59,7 +63,7 @@ export class CreateEntries extends pinToBoard<Playground>(LitElement) {
     element.validityTransform = (newValue, nativeValidity) => {
       this.requestUpdate();
       if (newValue.length === 46) {
-        const entry = selectActiveCell(this.state).getEntry(newValue);
+        const entry = selectEntry(this.state)(newValue);
         if (entry) return { valid: true };
       }
       element.setCustomValidity("Entry does not exist");
@@ -375,8 +379,16 @@ export class CreateEntries extends pinToBoard<Playground>(LitElement) {
     `;
   }
 
+  cell() {
+    let cell = selectActiveCell(this.state);
+    if (!cell) {
+      cell = selectActiveCells(this.state)[0];
+    }
+    return cell;
+  }
+
   buildDHTOpsTransforms() {
-    const newHeader = selectActiveCell(this.state).newHeader(
+    const newHeader = this.cell().newHeader(
       hash(this.entryToCreate.entry),
       this.entryToCreate.replaces
     );
@@ -417,7 +429,7 @@ export class CreateEntries extends pinToBoard<Playground>(LitElement) {
   }
 
   createEntry() {
-    selectActiveCell(this.state).createEntry(
+    this.cell().createEntry(
       this.entryToCreate.entry,
       this.entryToCreate.replaces
     );

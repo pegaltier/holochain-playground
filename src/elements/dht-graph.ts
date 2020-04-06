@@ -27,7 +27,7 @@ export class DHTGraph extends pinToBoard<Playground>(LitElement) {
 
     this.cy = cytoscape({
       container: this.shadowRoot.getElementById("graph"),
-      boxSelectionEnabled: true,
+      boxSelectionEnabled: false,
       elements: nodes,
       layout: { name: "circle" },
       style: `

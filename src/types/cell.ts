@@ -5,7 +5,7 @@ import {
   neighborhood,
   DHTOpType,
   hashDHTOp,
-  sortDHTOps
+  sortDHTOps,
 } from "./dht-op";
 import { Entry, EntryType } from "./entry";
 import { hash, distance, compareBigInts } from "../processors/hash";
@@ -19,6 +19,20 @@ export const REPLACED_BY = "REPLACED_BY";
 export const DELETED_BY = "DELETED_BY";
 export const HEADERS = "HEADERS";
 export const LINKS_TO = "LINKS_TO";
+
+export interface EntryMetadata {
+  CRUDStatus: string;
+  REPLACES: string | undefined;
+  REPLACED_BY: string | undefined;
+  DELETED_BY: string | undefined;
+  HEADERS: Array<Header>;
+  LINKS_TO: Array<{
+    target: string;
+    tag: string;
+    type: string;
+    timestmap: string;
+  }>;
+}
 
 export class Cell {
   sourceChain: string[] = [];
@@ -58,7 +72,7 @@ export class Cell {
       const hood = neighborhood(dhtOp);
       const message: NetworkMessage = {
         type: NetworkMessageType.Publish,
-        payload: dhtOp
+        payload: dhtOp,
       };
 
       const peers = this.getNPeersClosestTo(this.redundancyFactor, hood);
@@ -74,7 +88,7 @@ export class Cell {
 
     const message: NetworkMessage = {
       type: NetworkMessageType.GetEntry,
-      payload: hash
+      payload: hash,
     };
 
     return this.sendMessage(this.dna, this.agentId, peer[0], message);
@@ -117,7 +131,7 @@ export class Cell {
       entryAddress: entryId,
       replacedEntryAddress,
       timestamp: Math.floor(Date.now() / 1000),
-      lastHeaderAddress
+      lastHeaderAddress,
     };
   }
 
@@ -141,7 +155,7 @@ export class Cell {
         LINKS_TO: [],
         CRUDStatus: undefined,
         REPLACED_BY: undefined,
-        DELETED_BY: undefined
+        DELETED_BY: undefined,
       };
     }
   }
@@ -161,7 +175,7 @@ export class Cell {
         case DHTOpType.RegisterAgentActivity:
           if (!this.CASMeta[dhtOp.header.agentId]) {
             this.CASMeta[dhtOp.header.agentId] = {
-              AGENT_HEADERS: []
+              AGENT_HEADERS: [],
             };
           }
 
@@ -193,7 +207,7 @@ export class Cell {
           ) {
             this.CASMeta[header.replacedEntryAddress][CRUDStatus] = "Replaced";
             this.CASMeta[header.replacedEntryAddress][REPLACED_BY] = [
-              hash(dhtOp.entry.newEntry)
+              hash(dhtOp.entry.newEntry),
             ];
           } else {
             const newEntryHash = hash(dhtOp.entry.newEntry);
@@ -223,7 +237,7 @@ export class Cell {
             target: dhtOp.entry.payload.target,
             tag: dhtOp.entry.payload.tag,
             type: dhtOp.entry.payload.type,
-            timestamp: dhtOp.header.timestamp
+            timestamp: dhtOp.header.timestamp,
           });
           break;
         case DHTOpType.RegisterRemoveLink:
@@ -232,7 +246,7 @@ export class Cell {
           const linkIndex = (this.CASMeta[dhtOp.entry.payload.base][
             LINKS_TO
           ] as Array<any>).findIndex(
-            link =>
+            (link) =>
               link.type === dhtOp.entry.payload.type &&
               link.target === dhtOp.entry.payload.target &&
               link.timestamp === dhtOp.entry.payload.timestamp

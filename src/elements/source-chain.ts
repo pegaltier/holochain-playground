@@ -78,7 +78,7 @@ export class SourceChain extends pinToBoard<Playground>(LitElement) {
   updated(changedValues: PropertyValues) {
     super.updated(changedValues);
 
-    this.cy.remove('nodes');
+    this.cy.remove("nodes");
     this.cy.add(sourceChainNodes(selectActiveCell(this.state)));
     this.cy.layout({ name: "dagre" }).run();
 
@@ -90,28 +90,8 @@ export class SourceChain extends pinToBoard<Playground>(LitElement) {
     return html`
       <div class="row fill">
         <div style="width: 400px; height: 99%" id="source-chain-graph"></div>
-        ${selectActiveEntry(this.state)
-          ? html`
-              <div class="column">
-                <strong style="margin-bottom: 8px;">
-                  ${selectActiveEntry(this.state).entryAddress
-                    ? "Header"
-                    : "Entry"}
-                  Id
-                </strong>
-                <span style="margin-bottom: 16px;"
-                  >${this.state.activeEntryId}</span
-                >
-                <json-viewer
-                  .data=${selectActiveEntry(this.state)}
-                ></json-viewer>
-              </div>
-            `
-          : html`
-              <div class="column fill center-content">
-                <span>Select entry to inspect</span>
-              </div>
-            `}
+
+        <entry-detail></entry-detail>
       </div>
     `;
   }
