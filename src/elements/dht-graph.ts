@@ -37,6 +37,7 @@ export class DHTGraph extends pinToBoard<Playground>(LitElement) {
       boxSelectionEnabled: false,
       elements: nodes,
       autoungrabify: true,
+      userPanningEnabled: false,
       userZoomingEnabled: false,
       layout: { name: "circle" },
       style: `

@@ -22,7 +22,7 @@ export class EntryGraph extends pinToBoard<Playground>(LitElement) {
       boxSelectionEnabled: false,
       autoungrabify: true,
       userZoomingEnabled: false,
-
+      userPanningEnabled: false,
       layout: { name: "cola" },
       style: `
               node {
@@ -98,7 +98,11 @@ export class EntryGraph extends pinToBoard<Playground>(LitElement) {
       const selectedEntryId = event.target.id();
       this.blackboard.update("activeEntryId", selectedEntryId);
     });
-    setTimeout(() => this.cy.layout({ name: "cola" }).run(), 100);
+
+    this.cy.add(allEntries(selectActiveCells(this.state), this.showAgentsIds));
+    console.log('adsf')
+    this.requestUpdate();
+
   }
 
   updated(changedValues) {
